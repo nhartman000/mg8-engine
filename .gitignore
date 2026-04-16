@@ -142,3 +142,16 @@ vite.config.ts.timestamp-*
 *.qson
 *.mg8.tmp
 output/
+
+# Local config / secrets
+*.key
+*.pem
+.env.local
+config.local.json
+
+# Packaged builds
+release/
+out/
+*.exe
+*.dmg
+*.AppImage
