@@ -1,15 +1,18 @@
 {
   "entry": "evaluate",
+
   "steps": {
     "evaluate": {
       "run": "gates.g8son",
       "next": "decision"
     },
+
     "decision": {
       "if": "result == true",
       "then": "complete",
       "else": "reject"
     },
+
     "complete": {},
     "reject": {}
   }
