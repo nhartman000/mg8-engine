@@ -1,0 +1,7 @@
+{
+  "entry": "unit1",
+  "nodes": {
+    "unit1": "units/basic_unit.mg8"
+  },
+  "edges": []
+}
