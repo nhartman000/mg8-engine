@@ -112,6 +112,11 @@ Trace written to output.qson
 
 ---
 
+CLI behavior:
+
+mg8-run examples/basic_unit.mg8
+mg8-run examples/basic_system.mg8pk
+
 ## Use Cases
 
 * Autonomous systems (navigation, robotics)
