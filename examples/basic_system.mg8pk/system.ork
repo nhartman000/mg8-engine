@@ -1,7 +1,13 @@
 {
+  "id": "basic-system-001",
   "entry": "unit1",
+
   "nodes": {
-    "unit1": "units/basic_unit.mg8"
+    "unit1": {
+      "type": "mg8",
+      "path": "units/basic_unit.mg8"
+    }
   },
+
   "edges": []
 }
