@@ -9,6 +9,19 @@
 
 MG8 Engine is a deterministic runtime for constructing and executing **bounded intelligence units**.
 
+## Execution Model
+
+MG8 units are executed via a deterministic flow script (`flow.ork`) which explicitly defines:
+
+- state loading (`.gst`)
+- gate evaluation (`.g8son`)
+- execution sequencing
+- branching logic
+- trace emission (`.qson`)
+
+Packages (`.mg8pk`) extend this model through `system.ork`, enabling composition of multiple MG8 units into a unified execution graph.
+
+
 Each unit is composed of:
 
 * **`.gst`** — structured state representation and constraints
