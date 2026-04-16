@@ -1,19 +1,41 @@
 {
-  "entry": "evaluate",
+  "id": "basic-unit-flow",
+  "entry": "load_state",
 
   "steps": {
+    "load_state": {
+      "action": "load",
+      "target": "state.gst",
+      "next": "load_gates"
+    },
+
+    "load_gates": {
+      "action": "load",
+      "target": "gates.g8son",
+      "next": "evaluate"
+    },
+
     "evaluate": {
-      "run": "gates.g8son",
+      "action": "execute",
+      "target": "gates.g8son",
       "next": "decision"
     },
 
     "decision": {
-      "if": "result == true",
+      "action": "branch",
+      "condition": "result == true",
       "then": "complete",
       "else": "reject"
     },
 
-    "complete": {},
-    "reject": {}
+    "complete": {
+      "action": "trace",
+      "event": "pass"
+    },
+
+    "reject": {
+      "action": "trace",
+      "event": "fail"
+    }
   }
 }
