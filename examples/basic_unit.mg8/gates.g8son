@@ -1,0 +1,9 @@
+[
+  {
+    "type": "AND",
+    "conditions": [
+      "object_detected == true",
+      "confidence > 0.9"
+    ]
+  }
+]
