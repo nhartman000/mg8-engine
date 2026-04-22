@@ -1,13 +1,13 @@
-
 [project]
 name = "mg8-engine"
 version = "0.1.0"
-description = "Deterministic logic-gated execution engine for composable intelligence units with Nych integration"
+description = "Deterministic logic-gated execution engine with Nych symbolic determinism"
 requires-python = ">=3.11"
 dependencies = [
-    "pydantic>=2.0",
-    "click>=8.0",
-    "pyyaml",           # for easier .ork if we want human-readable
+    "pydantic>=2.8",
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "python-dateutil",
 ]
 
 [project.scripts]
