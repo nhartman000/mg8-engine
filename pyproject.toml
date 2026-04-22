@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=45", "wheel", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,12 +17,12 @@ dependencies = [
 [project.scripts]
 mg8-run = "cli.mg8_run:cli"
 
-# Explicitly tell setuptools what to treat as packages
+# === THIS IS THE IMPORTANT PART THAT FIXES YOUR ERROR ===
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["engine*", "cli*"]
+include = ["cli*", "engine*"]
+exclude = ["tests*", "examples*", "docs*", "schemas*"]
 namespaces = false
 
-# Optional: exclude non-package dirs
-[tool.setuptools.exclude-package-data]
-"*" = ["tests*", "examples*", "docs*", "schemas*"]
+[tool.setuptools]
+py-modules = []   # prevents treating loose .py files as modules
