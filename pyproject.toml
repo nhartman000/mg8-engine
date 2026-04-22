@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "mg8-engine"
 version = "0.1.0"
@@ -7,8 +11,18 @@ dependencies = [
     "pydantic>=2.8",
     "click>=8.1",
     "pyyaml>=6.0",
-    "python-dateutil",
+    "python-dateutil>=2.8",
 ]
 
 [project.scripts]
 mg8-run = "cli.mg8_run:cli"
+
+# Explicitly tell setuptools what to treat as packages
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["engine*", "cli*"]
+namespaces = false
+
+# Optional: exclude non-package dirs
+[tool.setuptools.exclude-package-data]
+"*" = ["tests*", "examples*", "docs*", "schemas*"]
