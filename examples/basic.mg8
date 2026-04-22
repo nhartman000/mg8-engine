@@ -1,0 +1,26 @@
+{
+  "gst": {
+    "state": {"target": "nail", "status": "not_done"},
+    "constraints": ["use_visual_external_for_test"],
+    "domain": "construction_task"
+  },
+  "g8son": [
+    {
+      "id": "gate_test",
+      "type": "tote_test",
+      "condition": "visual_external == visual_internal",
+      "modality": "👀",
+      "action": "check_nail"
+    },
+    {
+      "id": "gate_operate",
+      "type": "tote_operate",
+      "action": "swing_hammer",
+      "modality": "👏👏"
+    }
+  ],
+  "ork_flow": ["gate_test", "gate_operate"],
+  "qson": {
+    "entries": []
+  }
+}
