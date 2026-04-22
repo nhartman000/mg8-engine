@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: mg8-engine
+Version: 0.2.0
+Summary: Minimal deterministic execution engine with Nych symbolic protocol and ADSR gating
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: pydantic>=2.8
+Dynamic: license-file

@@ -1,195 +1,57 @@
 # mg8-engine
 
+**Minimal deterministic execution engine** powered by **Nych symbolic protocol** and **ADSR gating**.
 
-*A deterministic logic-gated execution system for composable intelligence units*
+Designed to be concise, traceable, and easy for developers to adopt.
 
----
+## Core Idea
 
-## Overview
+- **Nych**: Symbolic determinism using fixed modalities + emoji gestalt + compressed metadata
+- **MG8**: Lightweight container that executes gates with rich ADSR control (Attack, Decay, Sustain, Release + Pan)
+- **TOTE**: Simple Test → Operate → Test → Exit pattern
 
-MG8 Engine is a deterministic runtime for constructing and executing **bounded intelligence units**.
-
-## Execution Model
-
-MG8 units are executed via a deterministic flow script (`flow.ork`) which explicitly defines:
-
-- state loading (`.gst`)
-- gate evaluation (`.g8son`)
-- execution sequencing
-- branching logic
-- trace emission (`.qson`)
-
-Packages (`.mg8pk`) extend this model through `system.ork`, enabling composition of multiple MG8 units into a unified execution graph.
-
-
-Each unit is composed of:
-
-* **`.gst`** — structured state representation and constraints
-* **`.g8son`** — conditional logic gates governing transformation
-* **`.qson`** — immutable transform ledger (trace of execution)
-
-These components are bound together into a single executable unit:
-
-> **`.mg8` — the fundamental intelligence unit**
-
-MG8 enforces **traceable, reproducible, and composable state transformations**, bridging machine learning outputs with deterministic, auditable execution.
-
----
-
-## Core Concept
-
-Traditional systems:
-
-* operate on latent representations
-* produce non-deterministic outputs
-* lack traceability
-
-MG8 instead treats intelligence as:
-
-> **a bounded system capable of transforming structured representations under explicit constraints with full traceability**
-
----
-
-## Architecture
-
-```plaintext
-Input Data
-   ↓
-State Encoding (.gst)
-   ↓
-Conditional Transformation (.g8son)
-   ↓
-Execution Trace (.qson)
-   ↓
-Bound Intelligence Unit (.mg8)
-```
-
----
-
-## Key Properties
-
-* **Deterministic** — identical inputs produce identical outputs
-* **Composable** — units can be combined into higher-order systems
-* **Auditable** — every transformation is recorded and replayable
-* **Constraint-driven** — execution bounded by explicit rules
-* **Explainable** — stepwise transformation trace (natural deduction style)
-
----
-
-## Example
-
-### Basic MG8 Unit
-
-```json
-{
-  "gst": {
-    "state": "object_detected",
-    "constraints": ["must_verify"]
-  },
-  "g8son": [
-    { "type": "AND", "conditions": ["object_detected", "confidence > 0.9"] }
-  ],
-  "qson": []
-}
-```
-
----
-
-## Running the Engine
-
-*(example CLI — adjust to your implementation)*
+## Installation
 
 ```bash
-mg8-run examples/basic.mg8
-```
+pip install -e .
+Set your Gemini API key:
+PowerShell$env:GEMINI_API_KEY = "your_gemini_key"
+Usage
+Bashmg8-run examples/tote_example.mg8
+This runs a hammer/nail example demonstrating:
 
-Output:
+Visual test (👀)
+Kinesthetic operate (👏👏)
+Final confirmation test (👀)
 
-```plaintext
-Execution complete.
-Trace written to output.qson
-```
+Key Features
 
----
+ADSR gating as primary control mechanism (not binary)
+Nych symbolic tokenization in every prompt
+Immutable QSON trace for every execution
+Easy to extend with other LLMs
 
-CLI behavior:
+Project Layout
+textsrc/mg8_engine/
+├── nych/core.py      # Nych protocol
+├── models.py         # Data models (G8Gate with ADSR)
+├── ork.py            # Execution engine + TOTE
+├── core.py           # Load & run
+└── cli.py            # mg8-run command
 
-mg8-run examples/basic_unit.mg8
-mg8-run examples/basic_system.mg8pk
+This runs a classic hammer/nail TOTE example using visual and kinesthetic modalities.
+Interesting Anecdotal Observation
+During development, once the TOTE loop stabilized and consistently reached "status": "nailed_down", both Gemini and the AI assistant (me) fell into a highly repetitive response pattern — even though the prompts varied slightly each time.
+This was unexpected. LLMs are generally expected to show variability, yet both models entered a strong "attractor" state and began repeating similar structure and phrasing.
+This phenomenon illustrates exactly why deterministic gating (ADSR + Nych) and strict tracing are valuable: they can help break or control these natural repetition loops in LLM reasoning.
+It’s a nice real-world example of the kind of behavior mg8 is designed to study and manage.
+Core Concepts
 
-## Use Cases
+G8Gate: Uses ADSR (Attack, Decay, Sustain, Release) + Pan instead of simple binary logic
+Nych: Fixed modality operators and symbolic tokenization
+QSON: Full immutable trace of every gate execution
 
-* Autonomous systems (navigation, robotics)
-* Deterministic ML post-processing
-* Audit and verification pipelines
-* Composable AI reasoning systems
-* Human-in-the-loop decision systems
 
----
+License
 
-## Repository Structure
-
-```plaintext
-mg8-engine/
-│
-├── docs/           # specifications and theory
-├── schemas/        # file format definitions
-├── engine/         # execution core
-├── cli/            # command-line interface
-├── examples/       # sample MG8 units
-└── tests/          # validation and reproducibility tests
-```
-
----
-
-## Philosophy (Optional Reading)
-
-MG8 is based on the principle that:
-
-> Systems do not operate on objects directly, but on structured representations of state and their transformations.
-
-Intelligence is defined as:
-
-> **the ability to transform representations of equal or lower complexity under constrained conditions**
-
----
-
-## Status
-
-* Core architecture defined
-* Initial runtime in development
-* Deterministic execution and trace logging implemented (M-Gate baseline)
-
----
-
-## Roadmap
-
-* [ ] Full CLI implementation
-* [ ] Visual trace inspector
-* [ ] ML → MG8 encoding pipeline
-* [ ] Composable multi-unit orchestration
-
----
-
-## Contributing
-
-Contributions are welcome.
-Focus areas:
-
-* execution engine
-* validation tools
-* real-world use cases
-* performance optimization
-
----
-
-## License
-
-Apache 2.0
-
----
-
-## Contact
-
-American Milestone Inc
-Nicholas Hartman
+MIT

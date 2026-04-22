@@ -1,25 +1,49 @@
 {
   "gst": {
-    "state": {"object": "nail", "status": "not_done"},
+    "state": {
+      "object": "nail",
+      "status": "not_done"
+    },
     "constraints": ["use_visual_external_for_test"],
     "domain": "hammering_task",
     "narrative_tense": "present"
   },
-  "g8son": [
-    {
-      "id": "test1",
-      "type": "tote_test",
-      "condition": "visual_external matches internal",
-      "modality": "👀",
-      "intensity": 1.2
-    },
-    {
-      "id": "operate1",
-      "type": "tote_operate",
-      "action": "swing_hammer",
-      "modality": "👏👏",
-      "intensity": 1.5
-    }
-  ],
-  "ork_flow": ["test1", "operate1"]
+  "g8son": {
+    "gates": [
+      {
+        "id": "test1",
+        "type": "tote_test",
+        "condition": "visual_external matches internal image",
+        "modality": "👀",
+        "attack": 1.4,
+        "decay": 0.5,
+        "sustain": 1.5,
+        "release": 0.6,
+        "pan": 0.4
+      },
+      {
+        "id": "operate1",
+        "type": "tote_operate",
+        "action": "swing hammer to nail down",
+        "modality": "👏👏",
+        "attack": 1.7,
+        "decay": 0.8,
+        "sustain": 1.1,
+        "release": 0.9,
+        "pan": -0.3
+      },
+      {
+        "id": "test2",
+        "type": "tote_test",
+        "condition": "nail is nailed down",
+        "modality": "👀",
+        "attack": 1.2,
+        "decay": 0.4,
+        "sustain": 1.6,
+        "release": 0.5,
+        "pan": 0.2
+      }
+    ]
+  },
+  "ork_flow": ["test1", "operate1", "test2"]
 }

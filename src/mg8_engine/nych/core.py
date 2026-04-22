@@ -1,6 +1,6 @@
 """
-Nych Protocol - Symbolic Determinism
-Fixed modality operators + emoji gestalt + vowel-stripped metadata + TOTE support
+Nych Symbolic Protocol
+Minimal, reusable symbolic determinism layer.
 """
 
 MODALITIES = {
@@ -15,7 +15,7 @@ MODALITIES = {
 }
 
 def strip_metadata(word: str) -> str:
-    """Remove vowels, collapse consecutive identical consonants."""
+    """Remove vowels and collapse double consonants."""
     if not word:
         return ""
     vowels = set("aeiouAEIOU")
@@ -30,14 +30,23 @@ def get_modality_name(symbol: str) -> str:
     return MODALITIES.get(symbol, "unknown_modality")
 
 def apply_nych_tokenization(text: str) -> dict:
-    """Tokenize text with Nych rules. Returns dict for LLM prompt injection."""
-    words = text.split()
+    """Convert text to Nych symbolic tokens."""
+    import re
+    words = re.findall(r'\w+', str(text).lower())
     tokens = []
+    
+    gestalt_map = {
+        "nail": "📌", "hammer": "🔨", "swing": "🔨",
+        "test": "🔬", "operate": "⚙️", "status": "📊",
+        "transformed": "✅", "object": "📦", "done": "✔️",
+        "not_done": "❌"
+    }
+    
     for word in words:
         meta = strip_metadata(word)
-        # In real use, replace with LLM call for best emoji gestalt
-        emoji = "❓"  # TODO: LLM gestalt selector
+        emoji = gestalt_map.get(word, "❓")
         tokens.append(f"{emoji}{meta}")
+    
     return {
         "original": text,
         "nych_tokens": " ".join(tokens),
