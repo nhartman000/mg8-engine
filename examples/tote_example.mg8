@@ -1,0 +1,25 @@
+{
+  "gst": {
+    "state": {"object": "nail", "status": "not_done"},
+    "constraints": ["use_visual_external_for_test"],
+    "domain": "hammering_task",
+    "narrative_tense": "present"
+  },
+  "g8son": [
+    {
+      "id": "test1",
+      "type": "tote_test",
+      "condition": "visual_external matches internal",
+      "modality": "👀",
+      "intensity": 1.2
+    },
+    {
+      "id": "operate1",
+      "type": "tote_operate",
+      "action": "swing_hammer",
+      "modality": "👏👏",
+      "intensity": 1.5
+    }
+  ],
+  "ork_flow": ["test1", "operate1"]
+}
