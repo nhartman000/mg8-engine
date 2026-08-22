@@ -82,8 +82,8 @@ def _merge_gst_resources(payloads: List[Dict[str, Any]]) -> Gst:
         if payload.get("state_id"):
             merged["source_state_ids"].append(payload["state_id"])
 
-        # Preserve richer canonical state fields when present. Later resources override
-        # earlier ones for the same named layer in this reference profile.
+        # Later resources override earlier ones for the same named layer in this
+        # reference profile. The dedicated GST specification remains authoritative.
         for key in (
             "prior",
             "current",
@@ -114,10 +114,12 @@ def _load_canonical_unit(path: Path, data: Dict[str, Any]) -> Mg8Unit:
     for ref in manifest.gates:
         gate_path = _resolve_resource(base_dir, ref)
         gate_payload = _load_json(gate_path)
-        if gate_payload.get("file_id"):
-            gate_file_ids.append(gate_payload["file_id"])
+        file_id = gate_payload.get("file_id") or gate_path.stem
+        gate_file_ids.append(file_id)
         for gate_dict in _iter_gate_dicts(gate_payload):
-            gates.append(G8Gate.model_validate(gate_dict))
+            enriched = dict(gate_dict)
+            enriched.setdefault("source_file_id", file_id)
+            gates.append(G8Gate.model_validate(enriched))
 
     if not gates:
         raise ValueError("Canonical MG8 unit contains no executable gates")
