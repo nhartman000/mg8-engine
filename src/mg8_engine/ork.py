@@ -67,7 +67,7 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
             return {"transformed": True, "gate_result": "PASS"}
         llm_callback = dummy_llm
 
-    state = unit.gst.state.copy()
+    state = unit.gst.execution_state()
     step = 0
     max_iterations = 30
 
