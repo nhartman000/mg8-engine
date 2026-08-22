@@ -52,7 +52,17 @@ def _default_trace_path(mg8_file: str, result) -> Path:
         trace_ref = Path(result.manifest.trace)
         if trace_ref.is_absolute():
             raise click.ClickException("Manifest trace path must be relative")
-        return source.parent / trace_ref
+
+        base = source.parent.resolve()
+        resolved = (base / trace_ref).resolve()
+        try:
+            resolved.relative_to(base)
+        except ValueError as exc:
+            raise click.ClickException(
+                "Manifest trace path must remain inside the MG8 unit directory"
+            ) from exc
+        return resolved
+
     return source.with_name(f"{source.stem}_trace.qson")
 
 
