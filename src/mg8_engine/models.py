@@ -59,13 +59,18 @@ class G8Gate(BaseModel):
 
 
 class G8son(BaseModel):
-    """Canonical bounded G8SON file shape: one to three gates."""
+    """
+    In-memory gate set.
+
+    Individual `.g8son` files are constrained to 1–3 gates by the canonical G8SON
+    schema. This runtime object may aggregate gates from multiple referenced files.
+    """
 
     model_config = ConfigDict(extra="allow")
 
     g8son_version: str = "1.0"
     file_id: Optional[str] = None
-    gates: List[G8Gate] = Field(min_length=1, max_length=3)
+    gates: List[G8Gate] = Field(min_length=1)
 
 
 class QsonEntry(BaseModel):
