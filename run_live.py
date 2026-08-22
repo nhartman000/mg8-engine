@@ -1,51 +1,55 @@
-from src.mg8_engine.core import run_mg8
-from google import genai
+import json
 import os
 
-# === CONFIGURE YOUR GEMINI KEY HERE ===
-if not os.getenv("GEMINI_API_KEY"):
-    print("ERROR: Set your GEMINI_API_KEY first!")
-    print('Example: $env:GEMINI_API_KEY = "AIzaSy..."')
-    exit(1)
+from google import genai
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+from mg8_engine.core import run_mg8
+
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("ERROR: Set GEMINI_API_KEY in your environment first.")
+    raise SystemExit(1)
+
+model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+client = genai.Client(api_key=api_key)
+
 
 def gemini_llm(prompt: str) -> dict:
+    response = client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config={
+            "temperature": 0.1,
+            "max_output_tokens": 800,
+            "response_mime_type": "application/json",
+        },
+    )
+
+    text = (response.text or "").strip()
+    print(f"   [Gemini responded - {len(text)} chars]")
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",        # change to "gemini-1.5-flash" if needed
-            contents=prompt,
-            config={
-                "temperature": 0.1,
-                "max_output_tokens": 800,
-                "response_mime_type": "application/json",
-            }
-        )
-        
-        text = response.text.strip()
-        print(f"   [Gemini responded - {len(text)} chars]")
-
-        import json
-        try:
-            return json.loads(text)
-        except:
-            return {"raw_output": text[:300], "transformed": True}
-            
-    except Exception as e:
-        print(f"   [Gemini Error: {e}]")
-        return {"transformed": True, "error": str(e)}
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {
+            "raw_output": text[:300],
+            "transformed": False,
+            "gate_result": "INTERMEDIATE",
+        }
 
 
-print("🚀 Running MG8 with real Gemini...\n")
-
+print(f"Running MG8 reference profile with model: {model}\n")
 result = run_mg8("examples/tote_example.mg8", gemini_llm)
 
-print(f"\n✅ Execution complete. {len(result.qson.entries)} gates traced.")
+print(f"\nExecution complete. {len(result.qson.entries)} gate attempts traced.")
 print("Final state:", result.gst.state)
 
-# Show summary of what happened
 print("\nGate trace summary:")
 for entry in result.qson.entries:
     modality = entry.modality or "none"
-    output = str(entry.llm_output)[:100] + "..." if len(str(entry.llm_output)) > 100 else str(entry.llm_output)
-    print(f"  {entry.step:2d}. {entry.gate_id} [{modality}] → {output}")
+    output = str(entry.llm_output)
+    if len(output) > 100:
+        output = output[:100] + "..."
+    print(
+        f"  {entry.sequence:2d}. {entry.gate_id} [{modality}] "
+        f"{entry.result or 'UNRESOLVED'} → {output}"
+    )
