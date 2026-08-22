@@ -1,1 +1,27 @@
-
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MG8 Unit Manifest",
+  "description": "Canonical resource-binding manifest consumed by the mg8-engine reference runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mg8_version": {"type": "string", "minLength": 1},
+    "unit_id": {"type": "string", "minLength": 1},
+    "entry": {"type": "string", "pattern": "\\.ork$"},
+    "state": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "\\.gst$"}
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "\\.g8son$"}
+    },
+    "trace": {"type": "string", "pattern": "\\.qson$"},
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "required": ["mg8_version", "unit_id", "entry", "state", "gates", "trace"]
+}
