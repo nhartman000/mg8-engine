@@ -12,7 +12,7 @@ class Gst(BaseModel):
     gst_version: Optional[str] = None
     state_id: Optional[str] = None
     state: Dict[str, Any] = Field(default_factory=dict)
-    constraints: List[Any] = Field(default_factory=list)
+    constraints: Any = Field(default_factory=list)
 
     # Canonical state-continuity fields are optional because older examples predate them.
     prior: Any = None
@@ -25,6 +25,36 @@ class Gst(BaseModel):
     # Legacy/reference-profile fields retained for compatibility.
     domain: str = "general"
     narrative_tense: str = "present"
+
+    def execution_state(self) -> Dict[str, Any]:
+        """
+        Produce the state view used by this executor without redefining GST semantics.
+
+        Explicit legacy/profile `state` fields take priority. Canonical current-state
+        layers are included when present so the engine can consume the published GST
+        shape while retaining internal/external separation.
+        """
+        result: Dict[str, Any] = dict(self.state)
+
+        if isinstance(self.current, dict):
+            result.update(self.current)
+
+        if isinstance(self.internal, dict):
+            internal_current = self.internal.get("current")
+            if internal_current is not None:
+                result["internal"] = internal_current
+
+        if isinstance(self.external, dict):
+            external_current = self.external.get("current")
+            if external_current is not None:
+                result["external"] = external_current
+
+        if self.intent is not None:
+            result["intent"] = self.intent
+        if self.outcome_expectation is not None:
+            result["outcome_expectation"] = self.outcome_expectation
+
+        return result
 
 
 class G8Gate(BaseModel):
