@@ -7,8 +7,8 @@
       "order": 1,
       "type": "condition",
       "conditions": [
-        "object_detected",
-        "confidence > 0.90"
+        "external.object_detected == true",
+        "external.confidence > 0.90"
       ],
       "outcomes": {
         "PASS": "continue",
