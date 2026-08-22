@@ -14,6 +14,12 @@ class CanonicalMg8LoaderTests(unittest.TestCase):
         self.assertEqual(len(unit.g8son.gates), 1)
         self.assertEqual(unit.g8son.gates[0].gate_id, "state_check")
 
+        effective = unit.gst.execution_state()
+        self.assertEqual(effective["internal"]["mode"], "active")
+        self.assertTrue(effective["external"]["object_detected"])
+        self.assertEqual(effective["external"]["confidence"], 0.95)
+        self.assertEqual(effective["intent"], "evaluate the current external state")
+
     def test_run_emits_event_level_qson_identity(self):
         def deterministic_fixture(_prompt):
             return {
