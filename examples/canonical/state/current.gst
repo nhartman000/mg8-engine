@@ -1,16 +1,21 @@
 {
   "gst_version": "1.0",
   "state_id": "STATE_EXAMPLE_001",
-  "state": {
-    "object_detected": true,
-    "confidence": 0.95
+  "internal": {
+    "prior": {"mode": "idle"},
+    "current": {"mode": "active"}
   },
-  "constraints": [
-    "confidence must remain above 0.90 for the example eligibility check"
-  ],
-  "prior": null,
-  "current": {
-    "object_detected": true,
-    "confidence": 0.95
+  "external": {
+    "prior": {"object_detected": false, "confidence": 0.0},
+    "current": {"object_detected": true, "confidence": 0.95}
+  },
+  "continuity": {
+    "placeholder": "0,0"
+  },
+  "intent": "evaluate the current external state",
+  "outcome_expectation": "eligible state remains inside the example constraint",
+  "constraints": {
+    "profile": "example-only",
+    "minimum_confidence": 0.9
   }
 }
