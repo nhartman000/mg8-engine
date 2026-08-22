@@ -1,0 +1,20 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "example.eligibility.001",
+  "gates": [
+    {
+      "gate_id": "state_check",
+      "order": 1,
+      "type": "condition",
+      "conditions": [
+        "object_detected",
+        "confidence > 0.90"
+      ],
+      "outcomes": {
+        "PASS": "continue",
+        "FAIL": "stop",
+        "INTERMEDIATE": "review"
+      }
+    }
+  ]
+}
