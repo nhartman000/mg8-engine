@@ -1,0 +1,11 @@
+{
+  "mg8_version": "1.0",
+  "unit_id": "example.canonical.001",
+  "entry": "flow.ork",
+  "state": ["state/current.gst"],
+  "gates": ["gates/eligibility.g8son"],
+  "trace": "trace/execution.qson",
+  "metadata": {
+    "description": "Canonical resource-bound fixture for mg8-engine"
+  }
+}

@@ -1,14 +1,16 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mg8-engine"
-version = "0.2.0"
-description = "Minimal deterministic execution engine with Nych symbolic protocol and ADSR gating"
+version = "0.3.0"
+description = "Reference MG8 runtime profile with canonical file-family loading and optional Nych/ADSR/TOTE extensions"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.8",
+    "click>=8.1",
+    "google-genai>=1.0",
 ]
 
 [project.scripts]
