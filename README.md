@@ -2,7 +2,7 @@
 
 **Reference runtime profile for the MG8 file family**
 
-`mg8-engine` is a small Python executor used to exercise MG8 interfaces and experimental Nych/ADSR/TOTE extensions. It is **not** the canonical definition of MG8 itself; the dedicated `mg8`, `gst`, `g8son`, and `qson-` repositories define the current public format baselines.
+`mg8-engine` is a small Python executor used to exercise MG8 interfaces and experimental Nych/ADSR/TOTE extensions. It is **not** the canonical definition of MG8 itself; the dedicated `mg8`, `gst`, `g8son`, and `qson` repositories define the current public format baselines.
 
 ## What this engine supports
 
