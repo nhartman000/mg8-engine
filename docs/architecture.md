@@ -66,6 +66,25 @@ QSON event
 
 Canonical resource references are required to be relative to the `.mg8` unit directory. Absolute paths and `..` traversal that escape the unit directory are rejected by the reference loader.
 
+## Authorization boundary
+
+The runtime, not the model, determines the gate result:
+
+```text
+current GST + optional proposed state
+              │
+              ▼
+     deterministic predicates
+              │
+     PASS / FAIL / INTERMEDIATE
+              │
+              ▼
+     declared G8SON outcome route
+```
+
+Provider output can propose state but cannot authorize itself. Candidate state is
+committed only after the corresponding deterministic gate passes.
+
 ## Backward compatibility
 
 The loader continues to accept the earlier embedded profile containing:
