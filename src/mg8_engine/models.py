@@ -103,6 +103,11 @@ class G8son(BaseModel):
     gates: List[G8Gate] = Field(min_length=1)
 
 
+class QsonActor(BaseModel):
+    type: str = "runtime"
+    id: str = "mg8-engine"
+
+
 class QsonEntry(BaseModel):
     """Event-level audit record emitted for one gate execution attempt."""
 
@@ -112,12 +117,14 @@ class QsonEntry(BaseModel):
     run_id: Optional[str] = None
     file_id: Optional[str] = None
     gate_id: str
-    sequence: int = Field(alias="step")
+    sequence: int
+    event_type: str = "gate_attempt"
     input_state_id: Optional[str] = None
     output_state_id: Optional[str] = None
     result: Optional[str] = None
     action: Optional[str] = None
-    actor: str = "mg8-engine"
+    actor: QsonActor = Field(default_factory=QsonActor)
+    evidence: Any = None
 
     # Reference-profile evidence retained for reproducibility/debugging.
     input_state: Any = None
@@ -128,17 +135,17 @@ class QsonEntry(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
 
-    @property
-    def step(self) -> int:
-        return self.sequence
-
-
 class Qson(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     qson_version: str = "1.0"
     run_id: Optional[str] = None
-    entries: List[QsonEntry] = Field(default_factory=list)
+    events: List[QsonEntry] = Field(default_factory=list)
+
+    @property
+    def entries(self) -> List[QsonEntry]:
+        """Compatibility accessor; serialized QSON uses canonical `events`."""
+        return self.events
 
 
 class Mg8Manifest(BaseModel):
