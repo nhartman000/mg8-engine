@@ -123,6 +123,11 @@ def _load_canonical_unit(path: Path, data: Dict[str, Any]) -> Mg8Unit:
 
     if not gates:
         raise ValueError("Canonical MG8 unit contains no executable gates")
+    if len(gate_file_ids) != len(set(gate_file_ids)):
+        raise ValueError("Canonical MG8 unit contains duplicate G8SON file IDs")
+    gate_id_list = [gate.gate_id for gate in gates]
+    if len(gate_id_list) != len(set(gate_id_list)):
+        raise ValueError("Gate IDs must be unique within an MG8 execution unit")
 
     flow_path = _resolve_resource(base_dir, manifest.entry)
     flow = _load_ork_flow(flow_path)

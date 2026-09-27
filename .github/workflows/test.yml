@@ -2,18 +2,23 @@ name: test
 
 on:
   push:
-    branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  unit-tests:
+  unit:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - name: Install package
-        run: python -m pip install -e .
-      - name: Run no-network unit tests
-        run: python -m unittest discover -s tests -p "test_*.py"
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -e .
+      - run: python -m unittest discover -s tests -v
+      - run: mg8-run examples/canonical/basic.mg8 --output /tmp/mg8.qson

@@ -58,6 +58,17 @@ trace_id = one attempted gate execution
 
 Every gate attempt receives a new `TRJ_*` trace identifier.
 
+## Authoritative gate execution
+
+Version 0.4 evaluates the declared G8SON conditions in the runtime. An optional
+model can propose state fields, but its claimed `PASS`/`FAIL` value is ignored;
+only the runtime predicate result authorizes a transition. Missing state resolves
+to `INTERMEDIATE`, not `PASS`.
+
+The bounded reference predicate profile supports dotted state paths, bare Boolean
+paths, structured predicate objects, `AND`/`OR`, and `==`, `!=`, `>`, `<`, `>=`,
+and `<=`. It never uses Python `eval`.
+
 ## QSON output
 
 The CLI writes the **QSON trace object itself**, not a serialized dump of the entire MG8 runtime object.
@@ -91,11 +102,24 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e .
 ```
 
-The package declares the dependencies used by the CLI/runtime:
+The default installation has no model-provider dependency:
 
 - Pydantic
 - Click
-- `google-genai`
+
+Gemini is optional:
+
+```bash
+pip install -e '.[gemini]'
+```
+
+## Run locally
+
+No API key or network access is required:
+
+```bash
+mg8-run examples/canonical/basic.mg8
+```
 
 ## Run with Gemini
 
@@ -111,10 +135,10 @@ Optionally select a model without editing source:
 export GEMINI_MODEL="your-model-name"
 ```
 
-Run:
+Run with the optional provider as a state proposer:
 
 ```bash
-mg8-run examples/canonical/basic.mg8
+mg8-run --provider gemini examples/canonical/basic.mg8
 ```
 
 Provider errors are surfaced as execution errors rather than converted into fake successful transforms.
@@ -124,10 +148,10 @@ Provider errors are surfaced as execution errors rather than converted into fake
 The canonical loader and trace identity can be exercised without an API key:
 
 ```bash
-python -m unittest tests.test_canonical_loader
+python -m unittest discover -s tests -v
 ```
 
-The test uses a deterministic local callback and verifies:
+The suite verifies:
 
 - canonical manifest loading;
 - relative GST/G8SON/ORK resource resolution;
@@ -135,10 +159,17 @@ The test uses a deterministic local callback and verifies:
 - `RUN_*` execution identity;
 - unique `TRJ_*` event identity;
 - QSON result recording.
+- deterministic predicate evaluation;
+- missing-input `INTERMEDIATE` behavior;
+- rejection of executable condition strings;
+- that a model cannot self-authorize a failed gate.
 
 ## Determinism statement
 
-This engine can make the **control flow, resource resolution, event identity, and trace construction deterministic** when its inputs and callback are deterministic.
+This engine makes **resource resolution, supported predicate evaluation, control
+flow, and trace construction deterministic** for the published reference profile.
+Random run/trace IDs and timestamps are intentionally unique audit fields and are
+not byte-for-byte reproducible.
 
 It does not claim that a third-party stochastic model becomes mathematically deterministic merely because it is called through MG8. Provider behavior must be measured separately.
 

@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from .models import G8Gate, Mg8Unit, QsonEntry
 from .nych.core import apply_nych_tokenization, get_modality_name
+from .predicates import evaluate_conditions
 
 
 def _gate_task(gate: G8Gate) -> str:
@@ -62,11 +63,6 @@ def _infer_gate_result(output) -> str | None:
 
 def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
     """Execute the reference-engine ORK flow and emit event-level QSON entries."""
-    if llm_callback is None:
-        def dummy_llm(_prompt):
-            return {"transformed": True, "gate_result": "PASS"}
-        llm_callback = dummy_llm
-
     state = unit.gst.execution_state()
     step = 0
     max_iterations = 30
@@ -85,8 +81,22 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
         step += 1
         input_snapshot = state.copy()
         prompt = build_strict_llm_prompt(unit, gate, state)
-        output = llm_callback(prompt)
-        gate_result = _infer_gate_result(output)
+        output = llm_callback(prompt) if llm_callback is not None else {}
+        if isinstance(output, dict):
+            control_fields = {"transformed", "gate_result", "result", "action"}
+            candidate_state = {**state, **{k: v for k, v in output.items() if k not in control_fields}}
+        else:
+            candidate_state = dict(state)
+
+        predicate = None
+        if gate.conditions and gate.type.lower() != "tote_test":
+            predicate = evaluate_conditions(gate.conditions, candidate_state, gate.type)
+            gate_result = predicate.result
+        else:
+            gate_result = _infer_gate_result(output)
+        if gate_result is None:
+            gate_result = "INTERMEDIATE"
+        action = gate.outcomes.get(gate_result)
 
         source_file_id = None
         if gate.model_extra:
@@ -97,20 +107,20 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
             run_id=unit.qson.run_id,
             file_id=source_file_id or unit.g8son.file_id,
             gate_id=gate.gate_id,
-            step=step,
+            sequence=step,
             input_state_id=unit.gst.state_id,
             result=gate_result,
+            action=action if isinstance(action, str) else None,
             input_state=input_snapshot,
             llm_prompt=prompt,
             llm_output=output,
             modality=gate.modality,
+            evidence=predicate.evidence if predicate else None,
         )
-        unit.qson.entries.append(entry)
+        unit.qson.events.append(entry)
 
-        if isinstance(output, dict):
-            # Control fields describe the execution event; they are not copied into GST.
-            control_fields = {"transformed", "gate_result", "result", "action"}
-            state.update({k: v for k, v in output.items() if k not in control_fields})
+        if gate_result == "PASS":
+            state = candidate_state
 
         # TOTE behavior is retained as a legacy/reference runtime extension rather than
         # generalized into the base MG8/G8SON specifications.
@@ -128,6 +138,8 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
             else:
                 continue
         else:
+            if action in {"stop", "review"} or gate_result != "PASS":
+                break
             i += 1
 
     if step >= max_iterations and i < len(flow):
