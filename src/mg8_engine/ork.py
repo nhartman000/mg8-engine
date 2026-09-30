@@ -1,7 +1,8 @@
 from uuid import uuid4
 
+from nych.semantic_encoding import encode_text as nych_encode_text
+
 from .models import G8Gate, Mg8Unit, QsonEntry
-from .nych.core import apply_nych_tokenization, get_modality_name
 
 
 def _gate_task(gate: G8Gate) -> str:
@@ -15,9 +16,14 @@ def _gate_task(gate: G8Gate) -> str:
 
 
 def build_strict_llm_prompt(unit: Mg8Unit, gate: G8Gate, current_state: dict) -> str:
-    """Build the ADSR/Nych reference-profile prompt for one gate execution."""
-    nych = apply_nych_tokenization(str(current_state))
-    modality_name = get_modality_name(gate.modality) if gate.modality else "none"
+    """Build the ADSR/Nych reference-profile prompt for one gate execution.
+
+    Gestalt symbolization of the current state goes through the real `nych`
+    package (nych.semantic_encoding.encode_text) rather than a hardcoded
+    ~10-word stub lexicon that used to live in this package and had drifted
+    out of sync with nych's actual sense registry.
+    """
+    nych_encoded, _nych_records = nych_encode_text(str(current_state))
 
     prompt = f"""
 You are executing one bounded gate inside the MG8 reference runtime profile.
@@ -25,11 +31,11 @@ You are executing one bounded gate inside the MG8 reference runtime profile.
 Domain: {unit.gst.domain}
 Current State: {current_state}
 GST Constraints: {unit.gst.constraints}
-Nych Tokens: {nych['nych_tokens']}
+Nych Tokens: {nych_encoded}
 
 Gate ID: {gate.gate_id}
 Gate Type: {gate.type}
-Modality: {gate.modality} → {modality_name}
+Modality: {gate.modality or "none"}
 ADSR extension profile: A={gate.attack} D={gate.decay} S={gate.sustain} R={gate.release} Pan={gate.pan}
 
 Task / Conditions: {_gate_task(gate)}
