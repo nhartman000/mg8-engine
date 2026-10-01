@@ -81,6 +81,63 @@ The older fixture remains at:
 examples/tote_example.mg8
 ```
 
+## NYCH pipeline (`mg8_engine.pipeline`)
+
+`src/mg8_engine/pipeline.py` implements the full NYCH → MG8 pipeline:
+
+```text
+USER → NYCH encoder (deterministic, the nych package) → .gst pretext →
+first LLM call (prune with dither + Gestalt mapping + .g8son creation) →
+.ork flow ordering → MG8 engine compiles/runs the .mg8 in one call →
+output handed off as .mg8 + .gitson canon bundle
+```
+
+`run_pipeline(gst_payload, mapping_llm, out_dir)` takes the `.gst` pretext
+produced by `nych.gst_export.build_gst`, prompts the mapping LLM, and
+**validates the returned plan against the canon rules** rather than
+trusting it: mappings only for requested words with the consonant skeleton
+embedded in each symbol id; modality operators never remapped;
+`#temp-invariant` pins respected; **scientific names, people's names, and
+prescription drug names never Gestalt-mapped**; 1–3 gates per `.g8son`,
+every gate a bounded loop with an exit condition; `.ork` flow restricted
+to declared gates. Violations raise `PipelineError` — nothing is repaired
+silently.
+
+The accepted mappings are recorded as sequence-0 `nych.gestalt_mapping`
+QSON audit entries (the consonant-embedded id strings are the audit trail)
+and returned as `pins` for the caller's nych `SessionInvariants` store.
+The executed unit is written as `output.mg8` (reloadable by `load_mg8`)
+plus a `.gitson` canon bundle (`mg8_engine.gitson`) so a receiving LLM can
+ingest the NYCH/MG8 rules; the `.gitson` size limit is a configurable
+parameter, never hard-coded.
+
+## Gate keeper: gated deterministic querying (`mg8_engine.keeper`)
+
+`src/mg8_engine/keeper.py` implements the mgate-keeper mechanism —
+flattening a `.gst` interpretation context plus `.g8son` requirement gates
+into a system prompt at temperature 0 to collapse the LLM's admissible
+answer space to a verbatim-reproducible response — hardened against the
+prototype's measurement weaknesses:
+
+- requests are **bit-identical** across repeat calls (deterministic prompt
+  construction, no timestamps or cache-busters);
+- the provider's `system_fingerprint` is recorded per call in the QSON
+  audit, and the result discloses evidence strength honestly: a verbatim
+  match across *different* backend fingerprints is strong
+  (constraint-driven) evidence, a match on one fingerprint is moderate
+  (can't rule out backend stability), no fingerprint is weak;
+- the repeat/exit loop is executed and verified in engine code
+  (`verify_reproducibility`), not handed to the LLM as a prose
+  instruction; divergence is a disclosed FAIL, never silently retried.
+
+Compatibility loaders accept the mgate-keeper file profiles unchanged:
+requirement-style `.g8son` (`gate_id`/`gate_name`/`atomic_requirements` →
+canonical `G8Gate` with `type="requirement"`), context-style `.gst`
+(via `Gst`'s `extra="allow"`), and project-style `.mg8`
+(`GateKeeper.from_project`). Transport remains a caller-supplied callback
+returning `{"content", "response_id", "system_fingerprint"}` — no vendored
+provider SDK.
+
 ## Installation
 
 ```bash
