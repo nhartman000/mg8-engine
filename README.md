@@ -115,17 +115,22 @@ parameter, never hard-coded.
 
 `src/mg8_engine/keeper.py` implements the mgate-keeper mechanism —
 flattening a `.gst` interpretation context plus `.g8son` requirement gates
-into a system prompt at temperature 0 to collapse the LLM's admissible
-answer space to a verbatim-reproducible response — hardened against the
-prototype's measurement weaknesses:
+into a system prompt at temperature 0, on the hypothesis that the gates
+collapse the LLM's admissible answer space to a verbatim-reproducible
+response. The module is built to *test* that hypothesis rather than
+assume it, hardened against the prototype's measurement weaknesses:
 
 - requests are **bit-identical** across repeat calls (deterministic prompt
   construction, no timestamps or cache-busters);
 - the provider's `system_fingerprint` is recorded per call in the QSON
-  audit, and the result discloses evidence strength honestly: a verbatim
-  match across *different* backend fingerprints is strong
-  (constraint-driven) evidence, a match on one fingerprint is moderate
-  (can't rule out backend stability), no fingerprint is weak;
+  audit, and the result reports an `evidence_level` that never claims
+  proof: a substantial response matching verbatim across *different*
+  backend fingerprints is **suggestive**; a match on one fingerprint is
+  **inconclusive** (can't rule out backend stability); a match with no
+  fingerprint, or any match shorter than `min_substantial_words`
+  (default 20) — short answers coincide easily — is **weak**. Every
+  result names the decisive test: a no-gates control run of the same
+  prompt. If that also matches verbatim, the gates weren't the cause;
 - the repeat/exit loop is executed and verified in engine code
   (`verify_reproducibility`), not handed to the LLM as a prose
   instruction; divergence is a disclosed FAIL, never silently retried.

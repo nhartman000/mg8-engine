@@ -62,6 +62,28 @@ class PlanValidationTests(unittest.TestCase):
         with self.assertRaises(PipelineError):
             validate_plan(self.plan, self.gst)
 
+    def test_operator_glyph_given_to_ordinary_word_rejected(self):
+        self.plan["mappings"][0]["glyph"] = "👀"
+        with self.assertRaises(PipelineError):
+            validate_plan(self.plan, self.gst)
+
+    def test_operator_glyph_inside_symbol_id_rejected(self):
+        m = self.plan["mappings"][0]
+        m["symbol_id"] = m["symbol_id"] + "💪"
+        with self.assertRaises(PipelineError):
+            validate_plan(self.plan, self.gst)
+
+    def test_operator_glyph_without_variation_selector_rejected(self):
+        self.plan["mappings"][0]["glyph"] = "\U0001F5EF"  # 🗯 without FE0F
+        with self.assertRaises(PipelineError):
+            validate_plan(self.plan, self.gst)
+
+    def test_canonical_operators_enforced_even_if_pretext_omits_them(self):
+        self.gst["nych_pretext"]["modality_operators"] = {}
+        self.plan["mappings"][0]["glyph"] = "👀"
+        with self.assertRaises(PipelineError):
+            validate_plan(self.plan, self.gst)
+
     def test_protected_term_mapping_rejected(self):
         gst = build_gst(MEDICAL)
         plan = plan_from_gst(gst)

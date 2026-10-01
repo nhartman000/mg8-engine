@@ -103,6 +103,13 @@ class PromptDeterminismTests(unittest.TestCase):
         self.assertEqual(k.request("q")["seed"], 42)
 
 
+LONG_ANSWER = (
+    "Photosynthesis is the process by which green plants, algae, and some "
+    "bacteria convert light energy, water, and carbon dioxide into glucose "
+    "and oxygen inside their chloroplasts."
+)
+
+
 class ReproducibilityTests(unittest.TestCase):
     def setUp(self):
         self.keeper = GateKeeper(Gst.model_validate(CTX_GST), [])
@@ -112,13 +119,14 @@ class ReproducibilityTests(unittest.TestCase):
 
         def transport(request):
             calls.append(request)
-            return {"content": "Photosynthesis is X.", "response_id": f"r{len(calls)}",
+            return {"content": LONG_ANSWER, "response_id": f"r{len(calls)}",
                     "system_fingerprint": "fp_a"}
 
         result = self.keeper.verify_reproducibility("q", transport, runs=3)
         self.assertTrue(result["deterministic"])
         self.assertEqual(result["fingerprint_consistent"], True)
-        self.assertIn("moderate", result["evidence"])
+        self.assertEqual(result["evidence_level"], "inconclusive")
+        self.assertIn("no-gates control", result["evidence"])
         # all requests bit-identical
         self.assertTrue(all(c == calls[0] for c in calls))
         # qson audit carries fingerprint and PASS results
@@ -127,7 +135,21 @@ class ReproducibilityTests(unittest.TestCase):
         self.assertTrue(all(e.result == "PASS" for e in entries))
         self.assertEqual(entries[0].model_extra["system_fingerprint"], "fp_a")
 
-    def test_match_across_fingerprints_is_strong_evidence(self):
+    def test_substantial_match_across_fingerprints_is_suggestive_not_proof(self):
+        fps = iter(["fp_a", "fp_b"])
+
+        def transport(_request):
+            return {"content": LONG_ANSWER, "response_id": "r",
+                    "system_fingerprint": next(fps)}
+
+        result = self.keeper.verify_reproducibility("q", transport)
+        self.assertTrue(result["deterministic"])
+        self.assertEqual(result["fingerprint_consistent"], False)
+        self.assertEqual(result["evidence_level"], "suggestive")
+        self.assertIn("not proof", result["evidence"])
+        self.assertNotIn("strong", result["evidence"])
+
+    def test_short_match_is_weak_even_across_fingerprints(self):
         fps = iter(["fp_a", "fp_b"])
 
         def transport(_request):
@@ -136,8 +158,19 @@ class ReproducibilityTests(unittest.TestCase):
 
         result = self.keeper.verify_reproducibility("q", transport)
         self.assertTrue(result["deterministic"])
-        self.assertEqual(result["fingerprint_consistent"], False)
-        self.assertIn("strong", result["evidence"])
+        self.assertEqual(result["evidence_level"], "weak")
+        self.assertEqual(result["word_count"], 1)
+
+    def test_min_substantial_words_is_configurable(self):
+        fps = iter(["fp_a", "fp_b"])
+
+        def transport(_request):
+            return {"content": "a b c", "response_id": "r",
+                    "system_fingerprint": next(fps)}
+
+        result = self.keeper.verify_reproducibility(
+            "q", transport, min_substantial_words=3)
+        self.assertEqual(result["evidence_level"], "suggestive")
 
     def test_divergence_disclosed_not_retried(self):
         outputs = iter(["answer one", "answer two"])
@@ -156,7 +189,13 @@ class ReproducibilityTests(unittest.TestCase):
             "q", lambda _r: "same answer")
         self.assertTrue(result["deterministic"])
         self.assertIsNone(result["fingerprint_consistent"])
-        self.assertIn("weak", result["evidence"])
+        self.assertEqual(result["evidence_level"], "weak")
+
+    def test_missing_fingerprint_is_weak_even_when_substantial(self):
+        result = self.keeper.verify_reproducibility(
+            "q", lambda _r: LONG_ANSWER)
+        self.assertEqual(result["evidence_level"], "weak")
+        self.assertIn("no system_fingerprint", result["evidence"])
 
     def test_fewer_than_two_runs_rejected(self):
         with self.assertRaises(ValueError):

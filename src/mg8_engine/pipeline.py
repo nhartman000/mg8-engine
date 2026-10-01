@@ -26,7 +26,8 @@ Rules enforced on the LLM plan (violations raise PipelineError):
     1. mappings may only cover words the pretext listed in needs_mapping;
     2. every mapping's symbol id must embed that word's consonant
        skeleton (the disambiguation clue);
-    3. the four modality operators are never remapped;
+    3. the four modality operators are never remapped, and no other word
+       may be given an operator's glyph (in glyph or symbol_id);
     4. words already pinned #temp-invariant keep their existing mapping;
     5. protected terms -- scientific names, names of people, prescription
        drug names -- are NEVER Gestalt-mapped; they stay literal;
@@ -58,6 +59,21 @@ DEFAULT_GITSON_MAX_BYTES = 900_000
 
 class PipelineError(ValueError):
     """Raised when an LLM plan violates the canon rules."""
+
+
+# The four canonical modality operators (mirrors nych.session_invariants
+# and T.O.T.E-loops' modality_operators table).
+CANON_MODALITY_OPERATORS = {
+    "external_observe": "👀",
+    "internal_model": "👁️🧠",
+    "operative_intent": "🗯️",
+    "execute": "💪",
+}
+
+
+def _bare_glyph(s: str) -> str:
+    """Strip emoji variation selectors so "🗯" and "🗯️" compare equal."""
+    return s.replace("️", "").replace("︎", "")
 
 
 # ---------------------------------------------------------------------------
@@ -113,8 +129,12 @@ def validate_plan(plan: Dict[str, Any], gst_payload: Dict[str, Any]) -> None:
     needs = {d["word"].lower(): d for d in pretext.get("needs_mapping", [])}
     protected = {p["word"].strip(".,;:").lower()
                  for p in pretext.get("protected", [])}
-    operators = pretext.get("modality_operators", {})
+    # The canonical operators are enforced even if a pretext omits or
+    # alters its operator table -- the engine doesn't trust its inputs.
+    operators = {**CANON_MODALITY_OPERATORS,
+                 **pretext.get("modality_operators", {})}
     operator_words = set(operators) | set(operators.values())
+    operator_glyphs = {_bare_glyph(g) for g in operators.values()}
     pinned = {p["word"].lower(): p["symbol_id"]
               for p in pretext.get("pinned", [])}
 
@@ -130,6 +150,13 @@ def validate_plan(plan: Dict[str, Any], gst_payload: Dict[str, Any]) -> None:
         if word in operator_words or key in operators:
             raise PipelineError(
                 f"modality operator {word!r} is invariant and was remapped")
+        for field in ("glyph", "symbol_id"):
+            value = _bare_glyph(str(m.get(field) or ""))
+            if any(g in value for g in operator_glyphs):
+                raise PipelineError(
+                    f"mapping for {word!r} uses a modality operator glyph in "
+                    f"its {field} ({m.get(field)!r}); operator glyphs belong "
+                    "only to their operators")
         if key in pinned:
             if m.get("symbol_id") != pinned[key]:
                 raise PipelineError(

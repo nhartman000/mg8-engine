@@ -5,10 +5,14 @@ verification (the "mgate-keeper" mechanism, hardened).
 Origin: the mgate-keeper prototype demonstrated that a .gst interpretation
 context plus .g8son gates of atomic requirements, flattened into a system
 prompt and sent at temperature 0, produced character-identical responses
-across separate API calls. Examination showed the determinism came from
-the *constraint narrowing itself* -- the gates squeeze the admissible
-answer space to effectively one rendering -- not from sampler seeding (the
-prototype's two calls did not even have identical prompts, yet matched).
+across separate API calls. The working hypothesis is that the determinism
+comes from the *constraint narrowing itself* -- the gates squeeze the
+admissible answer space to effectively one rendering -- rather than from
+sampler seeding (the prototype's two calls did not even have identical
+prompts, yet matched). That is a hypothesis this module is built to test,
+not a result it assumes: a matching pair alone cannot separate it from
+backend stability or from short answers simply coinciding, and the
+decisive comparison is a no-gates control run of the same prompt.
 
 This implementation keeps that mechanism and fixes the prototype's three
 measurement weaknesses:
@@ -48,6 +52,9 @@ LLMTransport = Callable[[Dict[str, Any]], Any]
 
 DEFAULT_SEED = 42
 DEFAULT_TEMPERATURE = 0.0
+# Below this many words, a verbatim match is weak evidence regardless of
+# backend fingerprints: short answers coincide easily.
+DEFAULT_MIN_SUBSTANTIAL_WORDS = 20
 
 
 # ---------------------------------------------------------------------------
@@ -184,7 +191,9 @@ class GateKeeper:
 
     def verify_reproducibility(self, user_prompt: str, transport: LLMTransport,
                                *, runs: int = 2,
-                               qson: Optional[Qson] = None) -> Dict[str, Any]:
+                               qson: Optional[Qson] = None,
+                               min_substantial_words: int = DEFAULT_MIN_SUBSTANTIAL_WORDS,
+                               ) -> Dict[str, Any]:
         """Send the IDENTICAL request `runs` times and verify verbatim
         equality in engine code.
 
@@ -194,11 +203,16 @@ class GateKeeper:
             fingerprints           -- distinct system_fingerprints seen
             fingerprint_consistent -- all calls on one backend build (None
                                       when the transport reports none)
-            evidence               -- honest strength assessment: a match
-                                      across differing fingerprints is
-                                      constraint-driven; a match on one
-                                      fingerprint can't rule out backend
-                                      stability as the cause.
+            evidence_level         -- "divergent" | "weak" | "inconclusive"
+                                      | "suggestive". Nothing here is ever
+                                      labelled proof: a repeat match is
+                                      necessary, not sufficient.
+            evidence               -- the same assessment in prose, ending
+                                      with the no-gates control that would
+                                      actually decide the question.
+            word_count             -- length of the matched output; under
+                                      min_substantial_words a match is
+                                      "weak" regardless of fingerprints.
         Divergence is reported, never silently retried."""
         if runs < 2:
             raise ValueError("reproducibility requires at least 2 runs")
@@ -232,18 +246,34 @@ class GateKeeper:
         known = [p for p in prints if p]
         fingerprint_consistent = (len(set(known)) == 1) if known else None
 
+        word_count = len(str(contents[0] or "").split())
+        control_note = ("; the decisive test is a no-gates control run of "
+                        "the same prompt -- if it also matches verbatim, the "
+                        "gates are not what made it deterministic")
         if not deterministic:
+            level = "divergent"
             evidence = "divergent: responses differ under identical requests"
+        elif word_count < min_substantial_words:
+            level = "weak"
+            evidence = (f"weak: outputs match but are only {word_count} "
+                        f"word(s) (< {min_substantial_words}); short answers "
+                        "often coincide whatever the cause" + control_note)
         elif fingerprint_consistent is False:
-            evidence = ("strong: verbatim match across different backend "
-                        "fingerprints -- constraint-driven determinism")
+            level = "suggestive"
+            evidence = ("suggestive: a substantial response matched verbatim "
+                        "across different backend fingerprints -- consistent "
+                        "with constraint-driven determinism, but not proof of "
+                        "it" + control_note)
         elif fingerprint_consistent is True:
-            evidence = ("moderate: verbatim match on a single backend "
-                        "fingerprint -- cannot separate constraint "
-                        "narrowing from backend stability")
+            level = "inconclusive"
+            evidence = ("inconclusive: verbatim match on a single backend "
+                        "fingerprint -- cannot separate constraint narrowing "
+                        "from backend stability" + control_note)
         else:
+            level = "weak"
             evidence = ("weak: verbatim match but transport reported no "
-                        "system_fingerprint; backend build unknown")
+                        "system_fingerprint; backend build unknown"
+                        + control_note)
 
         for entry in qson.entries[-runs:]:
             entry.result = "PASS" if deterministic else "FAIL"
@@ -255,7 +285,9 @@ class GateKeeper:
             "responses": responses,
             "fingerprints": sorted(set(known)),
             "fingerprint_consistent": fingerprint_consistent,
+            "evidence_level": level,
             "evidence": evidence,
+            "word_count": word_count,
             "request": request,
             "qson": qson,
         }
