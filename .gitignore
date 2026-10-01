@@ -159,3 +159,4 @@ out/
 # Python bytecode
 __pycache__/
 *.pyc
+demo_output/

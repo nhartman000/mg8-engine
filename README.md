@@ -1,8 +1,67 @@
 # mg8-engine
 
-**Reference runtime profile for the MG8 file family**
+**Reference runtime profile for the MG8 file family — and the one-command entry point for the whole NYCH system**
 
 `mg8-engine` is a small Python executor used to exercise MG8 interfaces and experimental Nych/ADSR/TOTE extensions. It is **not** the canonical definition of MG8 itself; the dedicated `mg8`, `gst`, `g8son`, and `qson` repositories define the current public format baselines.
+
+## The whole system, in one place
+
+NYCH is a pipeline that puts deterministic structure around an LLM instead of trusting prose. The flow:
+
+```text
+sentence
+  → nych (deterministic: role tagging, domain/competency, TOTE-loop lookup,
+          consonant skeletons, protected terms)          [nych repo]
+  → .gst pretext                                          [gst spec]
+  → FIRST REAL LLM CALL (Gestalt mapping + gate plan)
+  → engine-side canon validation (validate_plan — the model is NOT trusted)
+  → .g8son gates (1–3 per file, every gate has an exit)   [g8son spec]
+  → .ork flow → .mg8 unit executed here                   [mg8 spec]
+  → .qson audit trace                                     [qson spec]
+  → output.mg8 + .gitson canon bundle                     [gitson spec]
+```
+
+The repositories, and what each one is:
+
+| repo | role |
+|---|---|
+| [nych](https://github.com/nhartman000/nych) | the deterministic encoder (code) |
+| [mg8-engine](https://github.com/nhartman000/mg8-engine) | this repo: runtime, pipeline, validator, keeper, demo, experiment (code) |
+| [T.O.T.E-loops](https://github.com/nhartman000/T.O.T.E-loops) | the TOTE loop database, built from seeds with one command (code + data) |
+| [mg8](https://github.com/nhartman000/mg8) | `.mg8` unit container spec |
+| [gst](https://github.com/nhartman000/gst) | `.gst` state/pretext spec |
+| [g8son](https://github.com/nhartman000/g8son) | `.g8son` gate spec |
+| [qson](https://github.com/nhartman000/qson) | `.qson` audit-trace spec |
+| [gitson-](https://github.com/nhartman000/gitson-) | `.gitson` canon-bundle transport spec |
+| [TCTA](https://github.com/nhartman000/TCTA) | the transform-algebra theory behind it |
+
+### Quickstart: real LLM, end to end, one command
+
+```bash
+mkdir nych-workspace && cd nych-workspace
+git clone https://github.com/nhartman000/nych.git
+git clone https://github.com/nhartman000/T.O.T.E-loops.git
+git clone https://github.com/nhartman000/mg8-engine.git
+cd mg8-engine
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e . -e ../nych
+
+python3 demo.py "Re-ran both test suites after changes"
+```
+
+On first run the demo asks which provider you use (Anthropic / OpenAI / Gemini), lets you paste the API key, and saves it to a git-ignored `.env` — or copy [`.env.example`](.env.example) to `.env` yourself. The TOTE database is built automatically from the sibling checkout.
+
+### The experiment
+
+[`experiments/run_experiment.py`](experiments/run_experiment.py) runs 50 real commit messages (collected from these repositories' own git logs) through the NYCH pipeline and through plain prompting, and measures: plan-validation pass rate, provider-reported token cost, a content-retention accuracy proxy, and gated-vs-no-gates determinism (the control run the keeper's docs demand). Results are written to `experiments/results.json` and `experiments/RESULTS.md`.
+
+```bash
+python3 experiments/run_experiment.py              # full run
+python3 experiments/run_experiment.py --limit 5    # cheap smoke run
+python3 experiments/run_experiment.py --skip-llm   # coverage stats only, no API
+```
+
+Nothing in the results is pre-claimed: if the no-gates control is as deterministic as the gated runs, that is what the report says.
 
 ## What this engine supports
 
