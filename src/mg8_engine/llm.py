@@ -36,24 +36,30 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-PROVIDERS = ("anthropic", "openai", "gemini")
+PROVIDERS = ("anthropic", "openai", "gemini", "vertex", "vertex_batch")
 
 KEY_VARS = {
     "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
     "gemini": "GEMINI_API_KEY",
+    "vertex": "GOOGLE_CLOUD_PROJECT",
+    "vertex_batch": "GOOGLE_CLOUD_PROJECT",
 }
 
 DEFAULT_MODELS = {
     "anthropic": "claude-sonnet-4-20250514",
     "openai": "gpt-4o-mini",
-    "gemini": "gemini-2.5-flash",
+    "gemini": "gemini-3.8-flash",
+    "vertex": "gemini-2.5-flash",
+    "vertex_batch": "gemini-2.5-flash",
 }
 
 MODEL_VARS = {
     "anthropic": "ANTHROPIC_MODEL",
     "openai": "OPENAI_MODEL",
     "gemini": "GEMINI_MODEL",
+    "vertex": "VERTEX_MODEL",
+    "vertex_batch": "VERTEX_MODEL",
 }
 
 
@@ -97,8 +103,14 @@ def detect_provider() -> Optional[str]:
         if forced not in PROVIDERS:
             raise ValueError(f"NYCH_LLM_PROVIDER={forced!r}; "
                              f"expected one of {PROVIDERS}")
+        if forced == "vertex":
+            return forced if os.environ.get(KEY_VARS[forced]) else None
         return forced if os.environ.get(KEY_VARS[forced]) else None
     for provider in PROVIDERS:
+        if provider in ("vertex", "vertex_batch"):
+            if os.environ.get(KEY_VARS[provider]) and _gcloud_available():
+                return provider
+            continue
         if os.environ.get(KEY_VARS[provider]):
             return provider
     return None
@@ -165,6 +177,10 @@ class LLMClient:
         self.model = (model or os.environ.get(MODEL_VARS[self.provider])
                       or DEFAULT_MODELS[self.provider])
         self.timeout = timeout
+        # Client-side pacing for rate-limited (e.g. free-tier) keys:
+        # minimum seconds between requests. 0 = no pacing.
+        self.min_interval = float(os.environ.get("NYCH_LLM_MIN_INTERVAL", "0"))
+        self._last_request_at = 0.0
         self.calls = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
@@ -180,7 +196,12 @@ class LLMClient:
         import time
         request_bytes = json.dumps(payload).encode("utf-8")
         last_error: Exception | None = None
-        for attempt in range(4):
+        for attempt in range(5):
+            if self.min_interval > 0:
+                wait = self._last_request_at + self.min_interval - time.monotonic()
+                if wait > 0:
+                    time.sleep(wait)
+            self._last_request_at = time.monotonic()
             request = urllib.request.Request(
                 url, data=request_bytes,
                 headers={"Content-Type": "application/json", **headers},
@@ -191,13 +212,17 @@ class LLMClient:
                     return json.loads(resp.read().decode("utf-8"))
             except urllib.error.HTTPError as exc:
                 body = exc.read().decode("utf-8", errors="replace")
-                retryable = (exc.code == 429 and "quota" not in body.lower()
-                             ) or exc.code >= 500
+                # Hard quota exhaustion (daily caps, no credits) is not
+                # retryable; per-minute rate limits and 5xx are.
+                exhausted = any(s in body for s in
+                                ("PerDay", "credit_balance_exhausted",
+                                 "insufficient_quota"))
+                retryable = (exc.code == 429 and not exhausted) or exc.code >= 500
                 last_error = RuntimeError(
                     f"HTTP {exc.code} from {url}: {body[:400]}")
-                if not retryable or attempt == 3:
+                if not retryable or attempt == 4:
                     raise last_error from exc
-                time.sleep(2 ** attempt)
+                time.sleep(min(15 * (attempt + 1), 60))
         raise last_error  # unreachable, for the type checker
 
     def complete(self, messages: list[Dict[str, str]], *,
@@ -209,6 +234,10 @@ class LLMClient:
             result = self._anthropic(messages, temperature, max_tokens)
         elif self.provider == "openai":
             result = self._openai(messages, temperature, max_tokens, seed)
+        elif self.provider == "vertex_batch":
+            result = self._vertex_batch(messages, temperature, max_tokens)
+        elif self.provider == "vertex":
+            result = self._vertex(messages, temperature, max_tokens)
         else:
             result = self._gemini(messages, temperature, max_tokens)
         self.calls += 1
@@ -284,6 +313,103 @@ class LLMClient:
             "system_fingerprint": data.get("modelVersion"),
         }
 
+    def _vertex(self, messages, temperature, max_tokens):
+        system = "\n".join(m["content"] for m in messages
+                              if m["role"] == "system")
+        contents = [{"role": ("model" if m["role"] == "assistant" else "user"),
+                     "parts": [{"text": m["content"]}]}
+                    for m in messages if m["role"] != "system"]
+        body: Dict[str, Any] = {
+            "contents": contents,
+            "generationConfig": {"temperature": temperature,
+                                    "maxOutputTokens": max_tokens},
+        }
+        if system:
+            body["systemInstruction"] = {"parts": [{"text": system}]}
+        data = self._post(
+            f"https://us-central1-aiplatform.googleapis.com/v1/"
+            f"projects/{self.api_key}/locations/us-central1/"
+            f"publishers/google/models/{self.model}:generateContent",
+            {}, body)
+        usage = data.get("usageMetadata", {})
+        parts = (data.get("candidates") or [{}]) \
+            .get("content", {}).get("parts", [])
+        return {
+            "content": "".join(p.get("text", "") for p in parts),
+            "input_tokens": usage.get("promptTokenCount", 0),
+            "output_tokens": usage.get("candidatesTokenCount", 0),
+            "system_fingerprint": data.get("modelVersion"),
+        }
+
+    def _vertex_batch(self, messages, temperature, max_tokens):
+        """Vertex AI Batch Prediction: submits a batch job to the
+        Generative API and polls until done. Returns the first
+        response's content. Not used for the live pipeline (which
+        needs streaming), but available for the experiment's
+        no-throttle, no-rate-limit run."""
+        import time
+        project = self.api_key
+        model = self.model
+        job_id = f"nych-exp-{uuid4().hex[:8]}"
+        # Write input JSONL to a temp GCS path (caller must have
+        # write access to this bucket; we use a project-scoped one).
+        bucket = f"{project}-batch-output"
+        input_uri = f"gs://{bucket}/input/{job_id}.jsonl"
+        output_uri = f"gs://{bucket}/output/{job_id}/"
+        instances = [
+            {"content": m["content"]}
+            for m in messages if m["role"] == "user"
+        ]
+        # Upload input JSONL via GCS JSON API (requires storage
+        # write permission; if unavailable, fall through to the
+        # streaming vertex path below).
+        _upload_jsonl(input_uri, instances)
+        body: Dict[str, Any] = {
+            "displayName": job_id,
+            "model": f"publishers/google/models/{model}",
+            "inputConfig": {
+                "instancesFormat": "jsonl",
+                "gcsSource": {"uris": [input_uri]},
+            },
+            "outputConfig": {
+                "predictionsFormat": "jsonl",
+                "gcsDestination": {"outputUriPrefix": output_uri},
+            },
+            "modelParameters": {
+                "temperature": temperature,
+                "maxOutputTokens": max_tokens,
+            },
+        }
+        data = self._post(
+            f"https://us-central1-aiplatform.googleapis.com/v1/"
+            f"projects/{project}/locations/us-central1/"
+            f"batchPredictionJobs",
+            {}, body)
+        job_name = data["name"]
+        # Poll until done (max 30 min).
+        for _ in range(360):
+            time.sleep(5)
+            job = self._get(f"https://us-central1-aiplatform.googleapis.com/v1/{job_name}")
+            state = job.get("state", "")
+            if state in ("JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED",
+                          "JOB_STATE_CANCELLED"):
+                break
+        if state != "JOB_STATE_SUCCEEDED":
+            raise RuntimeError(f"batch job {job_id} ended in state {state}")
+        # Read predictions from GCS output and return the first.
+        predictions = _read_jsonl(output_uri)
+        return {
+            "content": predictions[0] if predictions else "",
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "system_fingerprint": None,
+        }
+
+    def _get(self, url: str) -> Dict[str, Any]:
+        request = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(request, timeout=self.timeout) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+
     # -- pipeline-shaped callbacks ------------------------------------------
 
     def mapping_llm(self, prompt: str) -> Dict[str, Any]:
@@ -312,6 +438,65 @@ class LLMClient:
                                max_tokens=2048, seed=request.get("seed"))
         return {"content": result["content"], "response_id": None,
                 "system_fingerprint": result["system_fingerprint"]}
+
+
+def _gcloud_available() -> bool:
+    """True if `gcloud` is installed and the user is authenticated."""
+    import subprocess
+    try:
+        r = subprocess.run(["gcloud", "auth", "list", "--filter=status:ACTIVE",
+                            "--format=value(account)"],
+                           capture_output=True, text=True, timeout=10)
+        return bool(r.stdout.strip())
+    except FileNotFoundError:
+        return False
+
+
+def _upload_jsonl(uri: str, instances: list) -> None:
+    """Upload a JSONL file to GCS using the JSON API.
+    Requires GOOGLE_APPLICATION_CREDENTIALS or ADC."""
+    import base64
+    from urllib.request import Request as Req
+    project = uri.split("/")[2]
+    bucket = uri.split("/")[3]
+    blob = "/".join(uri.split("/")[4:])
+    # Use gsutil if available (simpler than raw GCS API).
+    try:
+        import subprocess, tempfile, json as _json
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".jsonl", delete=False) as fh:
+            for inst in instances:
+                fh.write(_json.dumps(inst) + "\n")
+                fh.flush()
+            subprocess.run(["gsutil", "cp", fh.name, uri],
+                           check=True, timeout=120)
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+    # Fallback: raw GCS JSON API.
+    token = subprocess.run(
+        ["gcloud", "auth", "application-default", "print-access-token"],
+        capture_output=True, text=True, timeout=10).stdout.strip()
+    url = (f"https://storage.googleapis.com/upload/storage/v1/b/{bucket}"
+           f"/o?name={blob}&uploadType=media")
+    data = "\n".join(json.dumps(i) for i in instances).encode("utf-8")
+    req = Req(url, data=data, method="POST")
+    req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("Content-Type", "application/jsonl")
+    with urllib.request.urlopen(req, timeout=120):
+        pass
+
+
+def _read_jsonl(uri: str) -> list:
+    """Read a JSONL file from GCS and return parsed objects."""
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["gsutil", "cat", uri], capture_output=True,
+            text=True, timeout=120)
+        return [json.loads(line) for line in r.stdout.splitlines() if line]
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
 
 
 def _strip_fences(text: str) -> str:

@@ -49,7 +49,9 @@ pip install -e . -e ../nych
 python3 demo.py "Re-ran both test suites after changes"
 ```
 
-On first run the demo asks which provider you use (Anthropic / OpenAI / Gemini), lets you paste the API key, and saves it to a git-ignored `.env` — or copy [`.env.example`](.env.example) to `.env` yourself. The TOTE database is built automatically from the sibling checkout.
+On first run the demo asks which provider you use (Anthropic / OpenAI / Gemini / Vertex / Vertex Batch), lets you paste the API key, and saves it to a git-ignored `.env` — or copy [`.env.example`](.env.example) to `.env` yourself. The TOTE database is built automatically from the sibling checkout.
+
+For the 140-call experiment, use `NYCH_LLM_PROVIDER=vertex_batch` with your GCP project set in `.env` — Vertex Batch Prediction has no per-minute rate limits and processes all calls in one job.
 
 ### The experiment
 
