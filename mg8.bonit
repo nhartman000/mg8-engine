@@ -1,0 +1,120 @@
+BONIT/1.0
+NAME MG8_ENGINE_EXECUTION
+APPLIES_TO "nych.ork"
+
+# This file is the "mg8.bonit" named but left unwritten by
+# mg8/spec/ork_reference_profile.md ("nych.bonit, mg8.bonit -- not yet
+# written. These will carry the nych-encoder (steps 1-2) and mg8-engine
+# (step 3) rulesets for the main pipeline once that content is actually
+# drafted."). It picks up exactly where nych.bonit's WORKFLOW ends:
+#
+#   STEP 2 llm -> mg8_engine : HANDOFF(ork, gst)
+#
+# and formalizes mg8-engine's step 3: a second, independent LLM call
+# that assesses congruence between the handed-off .ork and .gst BEFORE
+# any .g8son gate is authored, then authors and sequentially executes
+# exactly three .g8son files. This is a specification only -- no code
+# in mg8-engine implements this step yet (src/mg8_engine/pipeline.py
+# still runs the older one-call ordering; see the change note at the
+# bottom of this file).
+
+AUTHORITY {
+  ACTOR mg8_engine ROLE="receive_handoff,request_congruence_assessment,validate_g8son_plan,write_g8son,sequence_ork_flow,execute_g8son_sequential,commit_qson"
+  ACTOR llm ROLE="congruence_assessment,g8son_authoring"
+}
+
+# STATUS_CANON resolves the three-way vocabulary drift across the family:
+#   G8SON gate results        -- PASS / FAIL / INTERMEDIATE (g8son_v1.md SS4,
+#                                 already implemented in mg8-engine's
+#                                 ork.py:_infer_gate_result)
+#   legacy NYCH MGate results -- PASS / FAIL / UNKNOWN
+#   .ork bound exhaustion     -- UNRESOLVED (ON_BOUND_EXCEEDED,
+#                                 ork_reference_profile.md)
+# One canonical vocabulary governs every result produced inside this
+# step, congruence assessment included -- not a fourth enum invented for
+# it. The other two map onto it rather than being restated as separate
+# truths.
+STATUS_CANON {
+  SOURCE "g8son/spec/g8son_v1.md"
+  SECTION "4"
+  VALUES ["PASS", "FAIL", "INTERMEDIATE"]
+  MAPS_FROM {
+    UNKNOWN -> INTERMEDIATE
+    UNRESOLVED -> FAIL
+  }
+  # UNRESOLVED maps to FAIL, not INTERMEDIATE: ork_reference_profile.md's
+  # ON_BOUND_EXCEEDED is already a fail-closed terminal state (a loop that
+  # exhausted its bound without satisfying its exit predicate), the same
+  # discipline TCTA's ALGORITHM_SELECT applies when SPREAD stays
+  # unresolved -- not an open question still awaiting more state, which is
+  # what INTERMEDIATE means per g8son_v1.md SS4.
+  APPLIES_TO ["CONGRUENCE_ASSESSMENT.RESULT", "gate_result"]
+}
+
+CONGRUENCE_ASSESSMENT {
+  INPUT ["ork", "gst"]
+  # What "congruent" means here: the .gst state nych.bonit's llm wrote and
+  # the .ork flow nych_encoder emitted in step 1 must still agree before
+  # mg8_engine commits to authoring gates against them. This is the
+  # specific drift this step exists to catch -- not a general sanity
+  # check, a named one.
+  CHECKS [
+    "every state field a proposed gate condition would reference actually exists in the handed-off gst",
+    "no proposed gate condition contradicts a gst constraint",
+    "the gst's state_id and the ork's declared entry point refer to the same run",
+    "nothing in gst or ork changed in a way step 1/2 did not account for"
+  ]
+  RESULT "<PASS|FAIL|INTERMEDIATE>"   # per STATUS_CANON; null until computed, never pre-set
+}
+
+RULES {
+  congruence_result IN ["PASS", "FAIL", "INTERMEDIATE"]
+  g8son_authored = false IF congruence_result != "PASS"
+  g8son_file_count = 3 IF congruence_result == "PASS"
+  gate_count_per_file RANGE 1..3
+  every_gate_declares_exit = true
+  sequential_execution_order = g8son_file_index ASC
+}
+
+WORKFLOW {
+  STEP 3 mg8_engine : RECEIVE_HANDOFF(ork, gst)
+  STEP 3 mg8_engine -> llm : REQUEST_CONGRUENCE_ASSESSMENT(ork, gst)
+  STEP 3 llm : ASSESS_CONGRUENCE(gst, ork)
+  STEP 3 llm : AUTHOR_G8SON_PLAN(file_count=3)
+  STEP 3 llm -> mg8_engine : RETURN(congruence_result, g8son_plan)
+  STEP 3 mg8_engine : VALIDATE_G8SON_PLAN(canon_rules)
+  STEP 3 mg8_engine : WRITE_G8SON(index=1)
+  STEP 3 mg8_engine : WRITE_G8SON(index=2)
+  STEP 3 mg8_engine : WRITE_G8SON(index=3)
+  STEP 3 mg8_engine : SEQUENCE_ORK_FLOW(gate_order)
+  STEP 3 mg8_engine : EXECUTE_G8SON_SEQUENTIAL(index=1)
+  STEP 3 mg8_engine : EXECUTE_G8SON_SEQUENTIAL(index=2)
+  STEP 3 mg8_engine : EXECUTE_G8SON_SEQUENTIAL(index=3)
+  STEP 3 mg8_engine : COMMIT_QSON_TRACE
+}
+
+VALIDATION {
+  REJECT IF G8SON_AUTHORED_BEFORE_CONGRUENCE_ASSESSED
+  REJECT IF G8SON_AUTHORED_WHEN_CONGRUENCE_RESULT_NOT_PASS
+  REJECT IF G8SON_FILE_COUNT_NOT_EQUAL_THREE
+  REJECT IF G8SON_FILE_GATE_COUNT_OUT_OF_BOUND
+  REJECT IF GATE_MISSING_EXIT_CONDITION
+  REJECT IF ORK_FLOW_REFERENCES_UNDECLARED_GATE
+  REJECT IF SEQUENTIAL_EXECUTION_SKIPS_OR_REORDERS_A_FILE
+  REJECT IF GATE_RESULT_OUTSIDE_STATUS_CANON
+  REJECT IF QSON_TRACE_MISSING_AFTER_EXECUTION
+  REVISE IF CONGRUENCE_RESULT_INTERMEDIATE
+}
+
+# Change log
+# - v1.0 -- first draft. Formalizes mg8-engine's step 3 per
+#   ork_reference_profile.md's forward reference. Does not yet exist in
+#   running code: src/mg8_engine/pipeline.py's run_pipeline/
+#   build_mapping_prompt still performs the OLDER one-call ordering
+#   (mappings + g8son_files + flow all from a single first LLM call,
+#   matching this repo's own README "NYCH pipeline" section) and has no
+#   congruence-assessment step, no second LLM call, and no fixed
+#   three-file requirement. Bringing pipeline.py in line with nych.bonit
+#   (first call: Gestalt mapping only) and this file (second call:
+#   congruence assessment + three .g8son files) is separate follow-up
+#   work, not performed here.
