@@ -79,6 +79,8 @@ from uuid import uuid4
 from .core import run_mg8
 from .gitson import make_block, split_canon_bundle, write_parts
 from .models import Mg8Unit, QsonEntry
+from .tcta_bridge import build_tcta_file, compute_mapping_narrowing, verify_compliance
+from tcta_engine.file_format import serialize_tcta
 
 LLMCallback = Callable[[str], Any]
 
@@ -524,7 +526,10 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
                  gate_llm: Optional[LLMCallback] = None,
                  unit_id: Optional[str] = None,
                  canon_blocks: Optional[List[Dict[str, str]]] = None,
-                 gitson_max_bytes: int = DEFAULT_GITSON_MAX_BYTES) -> Dict[str, Any]:
+                 gitson_max_bytes: int = DEFAULT_GITSON_MAX_BYTES,
+                 compute_tcta: bool = True,
+                 tcta_spread_low: float = 0.2,
+                 tcta_spread_high: float = 0.8) -> Dict[str, Any]:
     """Run the pipeline from a nych .gst pretext payload to the final
     .mg8 + .gitson handoff, per nych.bonit (steps 1-2) and mg8.bonit
     (step 3).
@@ -536,9 +541,19 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
     resulting sequential run (defaults to the engine's dummy PASS
     callback, unchanged from before).
 
+    When `compute_tcta` is true (the default), the first call's
+    SPREAD/ALGORITHM_SELECT narrowing is computed via
+    `tcta_bridge.compute_mapping_narrowing` and, on a successful run,
+    written alongside the unit as `trajectory.tcta` plus its own QSON
+    entry -- see `tcta_bridge`'s module docstring for exactly what Omega(C)
+    and SPREAD mean at this step (narrower than TCTA's full algebra; no
+    Gamma/Psi/HDRP is used here). Set it false to skip that computation
+    entirely and get the pre-TCTA output shape.
+
     Returns the mapping plan, the congruence assessment, the executed
     unit, the accepted mappings (for the caller to pin #temp-invariant),
-    and all output paths.
+    the TCTA narrowing result (`None` when `compute_tcta` is false or no
+    candidate words needed mapping), and all output paths.
 
     Raises PipelineError for any canon violation in either call's
     output. Raises CongruenceNotPass (a PipelineError subclass) when the
@@ -555,6 +570,21 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
     validate_mapping_plan(mapping_plan, gst_payload)
     mappings = mapping_plan.get("mappings", [])
 
+    # TCTA narrowing is computed here (pure, no file writes) so it covers
+    # exactly the mapping plan that was just validated and accepted --
+    # but it is only ever WRITTEN below, after the congruence call and
+    # unit assembly both succeed, so a later CongruenceNotPass/PipelineError
+    # still leaves out_dir untouched (mg8.bonit: REJECT IF
+    # G8SON_AUTHORED_BEFORE_CONGRUENCE_ASSESSED applies to everything this
+    # pipeline writes, not only .g8son).
+    tcta_narrowing = None
+    if compute_tcta:
+        tcta_narrowing = compute_mapping_narrowing(
+            gst_payload, mapping_plan,
+            spread_low=tcta_spread_low, spread_high=tcta_spread_high,
+        )
+        verify_compliance(tcta_narrowing)
+
     # --- Second call: congruence assessment + 3 .g8son files (mg8.bonit STEP 3) ---
     congruence_prompt = build_congruence_prompt(gst_payload, mappings)
     raw_congruence = congruence_llm(congruence_prompt)
@@ -568,12 +598,24 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
 
     g8son_plan = {"g8son_files": congruence["g8son_files"], "flow": congruence["flow"]}
 
-    mg8_path = assemble_unit(gst_payload, mappings, g8son_plan, out_dir, unit_id=unit_id)
+    resolved_unit_id = unit_id or f"nych-unit-{uuid4().hex[:8]}"
+    mg8_path = assemble_unit(gst_payload, mappings, g8son_plan, out_dir, unit_id=resolved_unit_id)
     unit = run_mg8(mg8_path, gate_llm)
+
+    tcta_path: Optional[Path] = None
+    if tcta_narrowing is not None:
+        tcta_file = build_tcta_file(
+            resolved_unit_id, tcta_narrowing,
+            spread_low=tcta_spread_low, spread_high=tcta_spread_high,
+        )
+        tcta_path = Path(out_dir) / "trajectory.tcta"
+        tcta_path.write_text(serialize_tcta(tcta_file), encoding="utf-8")
 
     # Audit trail: mapping acceptance (sequence 0) and the congruence
     # assessment that licensed authoring (sequence 1) both precede the
-    # gate-execution entries execute_ork already appended.
+    # gate-execution entries execute_ork already appended. The TCTA
+    # narrowing entry (sequence 2, when computed) goes after both --
+    # it audits the already-accepted mapping plan, it does not gate it.
     unit.qson.entries.insert(0, QsonEntry(
         trace_id=f"TRJ_{uuid4().hex}",
         run_id=unit.qson.run_id,
@@ -595,15 +637,37 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
         llm_output={"mappings": mappings, "tag": "#temp-invariant"},
         input_state_id=gst_payload.get("state_id"),
     ))
+    if tcta_narrowing is not None:
+        unit.qson.entries.insert(2, QsonEntry(
+            trace_id=f"TRJ_{uuid4().hex}",
+            run_id=unit.qson.run_id,
+            gate_id="tcta.trajectory_narrowing",
+            step=2,
+            action="tcta-narrowing",
+            result=tcta_narrowing.algorithm_select_result,
+            llm_prompt=None,
+            llm_output={
+                "omega_c_count": tcta_narrowing.omega_c_count,
+                "t_g_count": tcta_narrowing.t_g_count,
+                "unresolved_words": tcta_narrowing.unresolved_words,
+                "spread": tcta_narrowing.spread,
+                "algorithm_select_reason": tcta_narrowing.algorithm_select_reason,
+            },
+            input_state_id=gst_payload.get("state_id"),
+        ))
 
     handoff = write_output_handoff(unit, out_dir, canon_blocks=canon_blocks,
                                    max_bytes=gitson_max_bytes)
+    paths = {"unit_mg8": mg8_path, **handoff}
+    if tcta_path is not None:
+        paths["trajectory_tcta"] = tcta_path
     return {
         "mapping_plan": mapping_plan,
         "congruence": congruence,
         "unit": unit,
         "pins": mappings,
-        "paths": {"unit_mg8": mg8_path, **handoff},
+        "tcta_narrowing": tcta_narrowing,
+        "paths": paths,
     }
 
 

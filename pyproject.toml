@@ -12,6 +12,7 @@ dependencies = [
     "click>=8.1",
     "google-genai>=1.0",
     "nych @ git+https://github.com/nhartman000/nych.git",
+    "tcta-engine @ git+https://github.com/nhartman000/TCTA.git",
 ]
 
 [project.scripts]
