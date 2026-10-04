@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -173,7 +174,15 @@ class LLMClient:
         if self.provider is None:
             raise RuntimeError("no API key configured; call ensure_api_key() "
                                "or set one of " + ", ".join(KEY_VARS.values()))
-        self.api_key = os.environ[KEY_VARS[self.provider]]
+        if self.provider == "vertex_batch":
+            self.api_key = os.environ[KEY_VARS[self.provider]]
+            self.bucket = os.environ.get("NYCH_BUCKET", "")
+            if not self.bucket:
+                raise RuntimeError(
+                    "vertex_batch requires NYCH_BUCKET set in .env "
+                    "(a GCS bucket for input/output)")
+        else:
+            self.api_key = os.environ[KEY_VARS[self.provider]]
         self.model = (model or os.environ.get(MODEL_VARS[self.provider])
                       or DEFAULT_MODELS[self.provider])
         self.timeout = timeout
@@ -348,17 +357,18 @@ class LLMClient:
         needs streaming), but available for the experiment's
         no-throttle, no-rate-limit run."""
         import time
+        from uuid import uuid4
         project = self.api_key
         model = self.model
         job_id = f"nych-exp-{uuid4().hex[:8]}"
-        # Write input JSONL to a temp GCS path (caller must have
-        # write access to this bucket; we use a project-scoped one).
-        bucket = f"{project}-batch-output"
+        bucket = self.bucket
         input_uri = f"gs://{bucket}/input/{job_id}.jsonl"
         output_uri = f"gs://{bucket}/output/{job_id}/"
         instances = [
-            {"content": m["content"]}
-            for m in messages if m["role"] == "user"
+            {"request": {"contents": [
+                {"role": m["role"], "parts": [{"text": m["content"]}]}
+            ]}}
+            for m in messages
         ]
         # Upload input JSONL via GCS JSON API (requires storage
         # write permission; if unavailable, fall through to the
@@ -380,42 +390,113 @@ class LLMClient:
                 "maxOutputTokens": max_tokens,
             },
         }
+        import subprocess
+        token = subprocess.run(
+            ["gcloud", "auth", "application-default",
+             "print-access-token"],
+            capture_output=True, text=True, timeout=10).stdout.strip()
         data = self._post(
             f"https://us-central1-aiplatform.googleapis.com/v1/"
             f"projects/{project}/locations/us-central1/"
             f"batchPredictionJobs",
-            {}, body)
+            {"Authorization": f"Bearer {token}"}, body)
         job_name = data["name"]
-        # Poll until done (max 30 min).
-        for _ in range(360):
+        # Poll until done (max ~25 min).
+        state = ""
+        for _ in range(300):
             time.sleep(5)
-            job = self._get(f"https://us-central1-aiplatform.googleapis.com/v1/{job_name}")
+            job = self._get(
+                f"https://us-central1-aiplatform.googleapis.com/v1/{job_name}",
+                {"Authorization": f"Bearer {token}"})
             state = job.get("state", "")
             if state in ("JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED",
                           "JOB_STATE_CANCELLED"):
                 break
         if state != "JOB_STATE_SUCCEEDED":
-            raise RuntimeError(f"batch job {job_id} ended in state {state}")
-        # Read predictions from GCS output and return the first.
-        predictions = _read_jsonl(output_uri)
+            err = job.get("error", {}).get("message", "unknown")
+            raise RuntimeError(f"batch job {job_id} ended in state {state}: {err}")
+
+        # Read predictions from GCS output. Vertex writes each prediction
+        # as a JSON line in predictions.jsonl under a timestamped
+        # subdirectory of the outputUriPrefix.
+        predictions = _read_jsonl(output_uri + "predictions.jsonl")
+        if not predictions:
+            import urllib.request
+            prefix = output_uri.replace(f"gs://{bucket}/", "")
+            list_url = (f"https://storage.googleapis.com/storage/v1/b/{bucket}/o"
+                        f"?prefix={urllib.parse.quote(prefix, safe='')}")
+            req = urllib.request.Request(list_url, method="GET")
+            req.add_header("Authorization", f"Bearer {token}")
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                obj_list = json.loads(resp.read().decode("utf-8"))
+            for obj in obj_list.get("items", []):
+                name = obj["name"]
+                if name.endswith("predictions.jsonl"):
+                    media_url = obj.get("mediaLink")
+                    if not media_url:
+                        media_url = (f"https://storage.googleapis.com/"
+                                     f"download/storage/v1/b/{bucket}/o/"
+                                     f"{urllib.parse.quote(name, safe='')}"
+                                     f"?alt=media")
+                    req2 = urllib.request.Request(media_url, method="GET")
+                    req2.add_header("Authorization", f"Bearer {token}")
+                    with urllib.request.urlopen(req2, timeout=120) as resp2:
+                        content = resp2.read().decode("utf-8")
+                    predictions = [json.loads(line) for line in content.splitlines()
+                                    if line]
+                    break
+
+        # Vertex returns predictions in the same order as input, each
+        # wrapped in {"request":..., "response": {"candidates":
+        # [{"content": {"parts": [{"text": ...}]}}], "usageMetadata": ...}}.
+        first = predictions[0] if predictions else {}
+        content = ""
+        input_tokens = 0
+        output_tokens = 0
+        if isinstance(first, dict):
+            status = first.get("status")
+            if isinstance(status, dict) and status.get("code", 0) != 0:
+                raise RuntimeError(f"batch prediction failed: {status}")
+            resp = first.get("response", {})
+            if isinstance(resp, dict):
+                candidates = resp.get("candidates") or [{}]
+                parts = (candidates[0].get("content", {})
+                         .get("parts", []) if candidates else [])
+                content = "".join(p.get("text", "") for p in parts)
+                usage = resp.get("usageMetadata", {})
+                input_tokens = usage.get("promptTokenCount", 0)
+                output_tokens = usage.get("candidatesTokenCount", 0)
         return {
-            "content": predictions[0] if predictions else "",
-            "input_tokens": 0,
-            "output_tokens": 0,
-            "system_fingerprint": None,
+            "content": content,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "system_fingerprint": (first.get("response", {})
+                                   .get("modelVersion") if isinstance(first, dict) else None),
         }
 
-    def _get(self, url: str) -> Dict[str, Any]:
-        request = urllib.request.Request(url, method="GET")
+    def _get(self, url: str, headers: Dict[str, str] | None = None) -> Dict[str, Any]:
+        request = urllib.request.Request(url, method="GET",
+                                           headers=headers or {})
         with urllib.request.urlopen(request, timeout=self.timeout) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
     # -- pipeline-shaped callbacks ------------------------------------------
 
     def mapping_llm(self, prompt: str) -> Dict[str, Any]:
-        """pipeline.run_pipeline mapping callback: prompt in, parsed JSON
-        plan out. Strips markdown fences if the model added them; any other
-        malformation surfaces as the json error it is."""
+        """pipeline.run_pipeline FIRST-call callback (nych.bonit STEP 2,
+        Gestalt mapping only): prompt in, parsed JSON plan out. Strips
+        markdown fences if the model added them; any other malformation
+        surfaces as the json error it is."""
+        result = self.complete([{"role": "user", "content": prompt}],
+                               temperature=0.0, max_tokens=4096)
+        return json.loads(_strip_fences(result["content"]))
+
+    def congruence_llm(self, prompt: str) -> Dict[str, Any]:
+        """pipeline.run_pipeline SECOND-call callback (mg8.bonit STEP 3:
+        congruence assessment, then -- only on PASS -- three .g8son
+        files). Larger max_tokens than mapping_llm since a PASS response
+        authors three gate files plus the .ork flow, not just a word
+        list."""
         result = self.complete([{"role": "user", "content": prompt}],
                                temperature=0.0, max_tokens=4096)
         return json.loads(_strip_fences(result["content"]))
@@ -453,34 +534,18 @@ def _gcloud_available() -> bool:
 
 
 def _upload_jsonl(uri: str, instances: list) -> None:
-    """Upload a JSONL file to GCS using the JSON API.
-    Requires GOOGLE_APPLICATION_CREDENTIALS or ADC."""
-    import base64
-    from urllib.request import Request as Req
-    project = uri.split("/")[2]
-    bucket = uri.split("/")[3]
-    blob = "/".join(uri.split("/")[4:])
-    # Use gsutil if available (simpler than raw GCS API).
-    try:
-        import subprocess, tempfile, json as _json
-        with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".jsonl", delete=False) as fh:
-            for inst in instances:
-                fh.write(_json.dumps(inst) + "\n")
-                fh.flush()
-            subprocess.run(["gsutil", "cp", fh.name, uri],
-                           check=True, timeout=120)
-        return
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        pass
-    # Fallback: raw GCS JSON API.
+    """Upload a JSONL file to GCS using the REST API with ADC."""
+    import subprocess
     token = subprocess.run(
         ["gcloud", "auth", "application-default", "print-access-token"],
         capture_output=True, text=True, timeout=10).stdout.strip()
+    # uri is gs://bucket/path/to/file.jsonl
+    path = uri[len("gs://"):] if uri.startswith("gs://") else uri
+    bucket, blob = path.split("/", 1)
     url = (f"https://storage.googleapis.com/upload/storage/v1/b/{bucket}"
-           f"/o?name={blob}&uploadType=media")
+           f"/o?name={urllib.parse.quote(blob, safe='')}&uploadType=media")
     data = "\n".join(json.dumps(i) for i in instances).encode("utf-8")
-    req = Req(url, data=data, method="POST")
+    req = urllib.request.Request(url, data=data, method="POST")
     req.add_header("Authorization", f"Bearer {token}")
     req.add_header("Content-Type", "application/jsonl")
     with urllib.request.urlopen(req, timeout=120):
@@ -490,13 +555,28 @@ def _upload_jsonl(uri: str, instances: list) -> None:
 def _read_jsonl(uri: str) -> list:
     """Read a JSONL file from GCS and return parsed objects."""
     import subprocess
+    token = subprocess.run(
+        ["gcloud", "auth", "application-default", "print-access-token"],
+        capture_output=True, text=True, timeout=10).stdout.strip()
+    path = uri[len("gs://"):] if uri.startswith("gs://") else uri
+    bucket, blob = path.split("/", 1)
+    url = (f"https://storage.googleapis.com/storage/v1/b/{bucket}/o"
+           f"/{urllib.parse.quote(blob, safe='')}")
+    req = urllib.request.Request(url, method="GET")
+    req.add_header("Authorization", f"Bearer {token}")
     try:
-        r = subprocess.run(
-            ["gsutil", "cat", uri], capture_output=True,
-            text=True, timeout=120)
-        return [json.loads(line) for line in r.stdout.splitlines() if line]
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        media_url = data.get("mediaLink")
+        if media_url:
+            req2 = urllib.request.Request(media_url, method="GET")
+            req2.add_header("Authorization", f"Bearer {token}")
+            with urllib.request.urlopen(req2, timeout=120) as resp2:
+                content = resp2.read().decode("utf-8")
+            return [json.loads(line) for line in content.splitlines() if line]
+    except Exception:
+        pass
+    return []
 
 
 def _strip_fences(text: str) -> str:
