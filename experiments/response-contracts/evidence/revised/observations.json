@@ -1,0 +1,822 @@
+{
+  "profile": "response-repeatability-observations-v1",
+  "case": "revised",
+  "model": "gpt-6.1-sol",
+  "repetitions": 3,
+  "groups": {
+    "simple": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 1,
+      "identical_pairs": 3,
+      "total_pairs": 3,
+      "all_three_identical": true,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        108,
+        108,
+        108
+      ]
+    },
+    "ordered": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 1,
+      "identical_pairs": 3,
+      "total_pairs": 3,
+      "all_three_identical": true,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        96,
+        96,
+        96
+      ]
+    },
+    "grammar": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 1,
+      "identical_pairs": 3,
+      "total_pairs": 3,
+      "all_three_identical": true,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        89,
+        89,
+        89
+      ]
+    }
+  },
+  "total_usage": {
+    "input_tokens": 12636,
+    "output_tokens": 351,
+    "total_tokens": 12987
+  },
+  "provider_reported_cached_input_tokens": 0,
+  "records": [
+    {
+      "group": "simple",
+      "repetition": 1,
+      "provider_response_id": "resp_02682f59f792d530016ade69fafc9c81929322864a6061083c",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1346,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 60,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 1406,
+        "attribution": {
+          "items": {
+            "msg_02682f59f792d530016ade69fafd288192a0b45a749ea32afb": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_02682f59f792d530016ade69fcd8a4819288db1f0cd3ba0035": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 25,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 25
+                }
+              ]
+            },
+            "rs_02682f59f792d530016ade69fbcc648192a2d8123ed0fe1dc8": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 35
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1332,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses energy from sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 108,
+      "response_sha256": "deace3951b7af2c7698f1fd2495a361159ba147f803e8afd4c86828268cc29a8",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " energy",
+        " from",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "fb71bcc8e3d9ea7d7ab87c9108c385aee89846066a1a76241a3f2a8eaafa89b7",
+      "raw_provider_event_file_sha256": "af3894a7d73396dac957cad24be4b3840d63c897752434d4d71503bddae68920"
+    },
+    {
+      "group": "ordered",
+      "repetition": 1,
+      "provider_response_id": "resp_018466586b9308c4016ade69ffc5c081a08a8af9e2cf84be11",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1403,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 21,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1424,
+        "attribution": {
+          "items": {
+            "msg_018466586b9308c4016ade69ffc66081a0a527b0ff85b0e1fd": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_018466586b9308c4016ade6a01451c81a0b1be716123c9c8bf": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 21,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 21
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1389,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 96,
+      "response_sha256": "d0fbf329961ec634421d1688b0d530a0ed292bed753c857e86ebf7cddc038a24",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "79d853371fb558bd6004f362188e6f525579126bb787d541ef26190a90f19223",
+      "raw_provider_event_file_sha256": "fe6380776289def5ae328a983648c7f3bf78f3a180d8e89fb2845950e8852a1c"
+    },
+    {
+      "group": "grammar",
+      "repetition": 1,
+      "provider_response_id": "resp_0bad84dc84beadb3016ade6a0202a4819fa187e2dede5e5e6e",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1463,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 19,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1482,
+        "attribution": {
+          "items": {
+            "msg_0bad84dc84beadb3016ade6a020354819f8ab72600afd7e0e8": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0bad84dc84beadb3016ade6a044044819fadd8d57c30499f56": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 19,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 19
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1449,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to convert carbon dioxide and water into glucose and oxygen.",
+      "response_bytes": 89,
+      "response_sha256": "7140e9551cd05ee7028317f6518b6c7ee8f51d2ec254c03db0e516f8b3ebec3c",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " convert",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        "."
+      ],
+      "request_sha256": "46f0e47af2411f57ee1795ef4f88802243664e1180c67c6adc4dcc8d65f846e0",
+      "raw_provider_event_file_sha256": "6487ef90a2036bde7aff728a8c97ec470392220e39064e730aac1e0ebee02484"
+    },
+    {
+      "group": "simple",
+      "repetition": 2,
+      "provider_response_id": "resp_03a61d7e2d5f3008016ade6a04dfd0819f8447315b363b6ad1",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1346,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 67,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 1413,
+        "attribution": {
+          "items": {
+            "msg_03a61d7e2d5f3008016ade6a04e054819f9f0f1aab05e30175": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_03a61d7e2d5f3008016ade6a071670819fb351d9767770f4b6": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 25,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 25
+                }
+              ]
+            },
+            "rs_03a61d7e2d5f3008016ade6a06045c819f9a35be8e8eceaab6": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 42
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1332,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses energy from sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 108,
+      "response_sha256": "deace3951b7af2c7698f1fd2495a361159ba147f803e8afd4c86828268cc29a8",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " energy",
+        " from",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "fb71bcc8e3d9ea7d7ab87c9108c385aee89846066a1a76241a3f2a8eaafa89b7",
+      "raw_provider_event_file_sha256": "2228848a17b55922fbec4342d7b8d1a0805a463ac5c91eb1302d4712eebed4ac"
+    },
+    {
+      "group": "ordered",
+      "repetition": 2,
+      "provider_response_id": "resp_043c46f99150331c016ade6a0a41908191b4e457b914bc4868",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1403,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 1456,
+        "attribution": {
+          "items": {
+            "msg_043c46f99150331c016ade6a0a421481918978d06f15184fd8": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_043c46f99150331c016ade6a0d97208191a968a2cd7324825a": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 23,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 23
+                }
+              ]
+            },
+            "rs_043c46f99150331c016ade6a0b879081919dcd1d488a101416": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 30
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1389,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 96,
+      "response_sha256": "d0fbf329961ec634421d1688b0d530a0ed292bed753c857e86ebf7cddc038a24",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "79d853371fb558bd6004f362188e6f525579126bb787d541ef26190a90f19223",
+      "raw_provider_event_file_sha256": "496f98bba66ad9e829e6ee7fa3d6d61e32a2766b3256052da05f8a278bc4555d"
+    },
+    {
+      "group": "grammar",
+      "repetition": 2,
+      "provider_response_id": "resp_0275d255eeb106e9016ade6a0eaec481a3990161e9a646d04f",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1463,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 19,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1482,
+        "attribution": {
+          "items": {
+            "msg_0275d255eeb106e9016ade6a0eaf5481a3a0e308b4b4fd7f92": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0275d255eeb106e9016ade6a0fa86881a395461268b94df9a7": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 19,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 19
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1449,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to convert carbon dioxide and water into glucose and oxygen.",
+      "response_bytes": 89,
+      "response_sha256": "7140e9551cd05ee7028317f6518b6c7ee8f51d2ec254c03db0e516f8b3ebec3c",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " convert",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        "."
+      ],
+      "request_sha256": "46f0e47af2411f57ee1795ef4f88802243664e1180c67c6adc4dcc8d65f846e0",
+      "raw_provider_event_file_sha256": "a42c1557f8aefe8fcad43f5a45d5322e3529c11bfbcb3e2a8a2ec4a744006c92"
+    },
+    {
+      "group": "simple",
+      "repetition": 3,
+      "provider_response_id": "resp_09f921a079d09fd1016ade6a106514819fbc487cef87e61bdd",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1346,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 72,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 1418,
+        "attribution": {
+          "items": {
+            "msg_09f921a079d09fd1016ade6a106598819fb70d32ba1411cbbe": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_09f921a079d09fd1016ade6a1223f0819f9d46a200ec6c2e08": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 25,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 25
+                }
+              ]
+            },
+            "rs_09f921a079d09fd1016ade6a119a48819fbf5dc2f3b3532815": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 47
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1332,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses energy from sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 108,
+      "response_sha256": "deace3951b7af2c7698f1fd2495a361159ba147f803e8afd4c86828268cc29a8",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " energy",
+        " from",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "fb71bcc8e3d9ea7d7ab87c9108c385aee89846066a1a76241a3f2a8eaafa89b7",
+      "raw_provider_event_file_sha256": "71f6ac729c45d11c4544d1d0e2bc7f788b4b4aa0851bdfdee0597c99bd62eb73"
+    },
+    {
+      "group": "ordered",
+      "repetition": 3,
+      "provider_response_id": "resp_0b636ee3357fa30f016ade6a14af0481919b3c2110fa8cabac",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1403,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 21,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1424,
+        "attribution": {
+          "items": {
+            "msg_0b636ee3357fa30f016ade6a14afc88191b143858ee560e59a": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0b636ee3357fa30f016ade6a15ade8819199ae3bbf6354b33a": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 21,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 21
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1389,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to turn carbon dioxide and water into glucose and oxygen in plants.",
+      "response_bytes": 96,
+      "response_sha256": "d0fbf329961ec634421d1688b0d530a0ed292bed753c857e86ebf7cddc038a24",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " turn",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        " in",
+        " plants",
+        "."
+      ],
+      "request_sha256": "79d853371fb558bd6004f362188e6f525579126bb787d541ef26190a90f19223",
+      "raw_provider_event_file_sha256": "16eaa82a3cac370c98b1f441da61b2bc99dae4cb42594a4e4df58c180f52adb4"
+    },
+    {
+      "group": "grammar",
+      "repetition": 3,
+      "provider_response_id": "resp_087cd1975c3ac097016ade6a166bc481a28ebb1e6ee7a77c33",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1463,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 19,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1482,
+        "attribution": {
+          "items": {
+            "msg_087cd1975c3ac097016ade6a166c6881a2b46c11560c27582d": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_087cd1975c3ac097016ade6a17951c81a2949af045c0d4fcb2": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 19,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 19
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1449,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis uses sunlight to convert carbon dioxide and water into glucose and oxygen.",
+      "response_bytes": 89,
+      "response_sha256": "7140e9551cd05ee7028317f6518b6c7ee8f51d2ec254c03db0e516f8b3ebec3c",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " uses",
+        " sunlight",
+        " to",
+        " convert",
+        " carbon",
+        " dioxide",
+        " and",
+        " water",
+        " into",
+        " glucose",
+        " and",
+        " oxygen",
+        "."
+      ],
+      "request_sha256": "46f0e47af2411f57ee1795ef4f88802243664e1180c67c6adc4dcc8d65f846e0",
+      "raw_provider_event_file_sha256": "f58dcbdfa9a0739f64a37841f5f5b026c5b02ad7f0d9944fee8bd368f56452ee"
+    }
+  ],
+  "evidence_scope": "Exact generated response text, output-text deltas, complete model-facing request per group, and provider completion metadata. Full reasoning/private transport event streams are not published. Local-only paths are omitted; observed content is unchanged.",
+  "source_summary_sha256": "53ffb02b16607cf7a4f6d1d157d78e83cb713662bedbf762fa9d2e42e170bd0c"
+}

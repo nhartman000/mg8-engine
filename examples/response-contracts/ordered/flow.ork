@@ -1,0 +1,7 @@
+{
+  "profile": "repeatability-experiment-v1",
+  "action": "generate_once",
+  "max_calls_per_trial": 1,
+  "repair": false,
+  "reuse_answers": false
+}

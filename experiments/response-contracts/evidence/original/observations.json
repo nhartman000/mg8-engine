@@ -1,0 +1,1180 @@
+{
+  "profile": "response-repeatability-observations-v1",
+  "case": "original",
+  "model": "gpt-6.1-sol",
+  "repetitions": 3,
+  "groups": {
+    "plain": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 3,
+      "identical_pairs": 0,
+      "total_pairs": 3,
+      "all_three_identical": false,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        469,
+        425,
+        440
+      ]
+    },
+    "flat": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 3,
+      "identical_pairs": 0,
+      "total_pairs": 3,
+      "all_three_identical": false,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        190,
+        217,
+        127
+      ]
+    },
+    "mg8": {
+      "completed": 3,
+      "errors": 0,
+      "distinct_responses": 3,
+      "identical_pairs": 0,
+      "total_pairs": 3,
+      "all_three_identical": false,
+      "distinct_request_payloads": 1,
+      "response_byte_lengths": [
+        201,
+        175,
+        140
+      ]
+    }
+  },
+  "total_usage": {
+    "input_tokens": 10809,
+    "output_tokens": 2182,
+    "total_tokens": 12991
+  },
+  "provider_reported_cached_input_tokens": 0,
+  "records": [
+    {
+      "group": "plain",
+      "repetition": 1,
+      "provider_response_id": "resp_0422adab94572a35016ade64574cf08191ba728a8e90bc3c0e",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 44,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 102,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 146,
+        "attribution": {
+          "items": {
+            "msg_0422adab94572a35016ade64574d788191a8b95ed2d23348d8": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0422adab94572a35016ade64584e888191b25e61bb809c41ef": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 102,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 102
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 30,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis is how plants use sunlight to make their own food.\n\nThey take in **water** through their roots and **carbon dioxide** from the air. Their leaves capture sunlight using a green substance called **chlorophyll**. This energy helps turn the water and carbon dioxide into **sugar**, which the plant uses to grow.\n\nThe process also releases **oxygen** into the air—the oxygen we breathe.\n\nSimply put: **sunlight + water + carbon dioxide → sugar + oxygen**.",
+      "response_bytes": 469,
+      "response_sha256": "a154f555c4f907b39f07dc4d4163759b8c2d7159f4aa6a3465ba613d8f65aa07",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " is",
+        " how",
+        " plants",
+        " use",
+        " sunlight",
+        " to",
+        " make",
+        " their",
+        " own",
+        " food",
+        ".\n\n",
+        "They",
+        " take",
+        " in",
+        " **",
+        "water",
+        "**",
+        " through",
+        " their",
+        " roots",
+        " and",
+        " **",
+        "carbon",
+        " dioxide",
+        "**",
+        " from",
+        " the",
+        " air",
+        ".",
+        " Their",
+        " leaves",
+        " capture",
+        " sunlight",
+        " using",
+        " a",
+        " green",
+        " substance",
+        " called",
+        " **",
+        "chlor",
+        "ophyll",
+        "**",
+        ".",
+        " This",
+        " energy",
+        " helps",
+        " turn",
+        " the",
+        " water",
+        " and",
+        " carbon",
+        " dioxide",
+        " into",
+        " **",
+        "s",
+        "ugar",
+        "**,",
+        " which",
+        " the",
+        " plant",
+        " uses",
+        " to",
+        " grow",
+        ".\n\n",
+        "The",
+        " process",
+        " also",
+        " releases",
+        " **",
+        "oxygen",
+        "**",
+        " into",
+        " the",
+        " air",
+        "—the",
+        " oxygen",
+        " we",
+        " breathe",
+        ".\n\n",
+        "Simply",
+        " put",
+        ":",
+        " **",
+        "sun",
+        "light",
+        " +",
+        " water",
+        " +",
+        " carbon",
+        " dioxide",
+        " →",
+        " sugar",
+        " +",
+        " oxygen",
+        "**",
+        "."
+      ],
+      "request_sha256": "e3e51a2a3a93eea70443a6f666b53ec9233cf543706171bf12696ee73bf373ce",
+      "raw_provider_event_file_sha256": "90b5237db302e0e46984fa7f5ed16181baedb4bf84d624804bb7a517946019a7"
+    },
+    {
+      "group": "flat",
+      "repetition": 1,
+      "provider_response_id": "resp_018ed1ebf405e0b3016ade645b437081928017301c562aa2ba",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 2122,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 268,
+        "output_tokens_details": {
+          "reasoning_tokens": 224
+        },
+        "total_tokens": 2390,
+        "attribution": {
+          "items": {
+            "msg_018ed1ebf405e0b3016ade645b440881928c479da82037e722": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_018ed1ebf405e0b3016ade6464ef4c8192a8306d75c910a15d": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 44,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 44
+                }
+              ]
+            },
+            "rs_018ed1ebf405e0b3016ade645cfb5c819296dd243255cbd5c9": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 224
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 2108,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nPlants capture energy from light.\nTheir roots take water from the soil.\nTheir leaves take carbon dioxide.\nLight helps turn these to glucose fuel.\nThey give off oxygen as gas.",
+      "response_bytes": 190,
+      "response_sha256": "55e842fc13a4dc73366d4f7bf03bf56c62b6efc0d04e58fbe6bf059222f7af2f",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Plants",
+        " capture",
+        " energy",
+        " from",
+        " light",
+        ".\n",
+        "Their",
+        " roots",
+        " take",
+        " water",
+        " from",
+        " the",
+        " soil",
+        ".\n",
+        "Their",
+        " leaves",
+        " take",
+        " carbon",
+        " dioxide",
+        ".\n",
+        "Light",
+        " helps",
+        " turn",
+        " these",
+        " to",
+        " glucose",
+        " fuel",
+        ".\n",
+        "They",
+        " give",
+        " off",
+        " oxygen",
+        " as",
+        " gas",
+        "."
+      ],
+      "request_sha256": "21bf1c153fbca79851dceade93b57fffa21fa6a9919802625e096e1161fdcd17",
+      "raw_provider_event_file_sha256": "b6e4b07f8e10d5de03f591da906180024de8cf2ad47e782776a362e67d4763d1"
+    },
+    {
+      "group": "mg8",
+      "repetition": 1,
+      "provider_response_id": "resp_00eb3851ae35fa98016ade6465cb24819293e607ce226d9567",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1437,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 357,
+        "output_tokens_details": {
+          "reasoning_tokens": 306
+        },
+        "total_tokens": 1794,
+        "attribution": {
+          "items": {
+            "msg_00eb3851ae35fa98016ade6465cbbc819286a6052457ecc9d0": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_00eb3851ae35fa98016ade6471792881929bb5e792053d60ff": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 51,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 51
+                }
+              ]
+            },
+            "rs_00eb3851ae35fa98016ade646740cc81928418b3b11e852eb3": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 306
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1423,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nPlants capture energy from light\nAnd use it to make their own food.\nThey take in carbon dioxide\nAnd water taken from the soil.\nGlucose stores energy as food,\nAnd oxygen goes to the air.",
+      "response_bytes": 201,
+      "response_sha256": "439b9cbd596cef75a613d520a03a6d2a4a38123cba877245710c289bcfb27098",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Plants",
+        " capture",
+        " energy",
+        " from",
+        " light",
+        "\n",
+        "And",
+        " use",
+        " it",
+        " to",
+        " make",
+        " their",
+        " own",
+        " food",
+        ".\n",
+        "They",
+        " take",
+        " in",
+        " carbon",
+        " dioxide",
+        "\n",
+        "And",
+        " water",
+        " taken",
+        " from",
+        " the",
+        " soil",
+        ".\n",
+        "Gl",
+        "ucose",
+        " stores",
+        " energy",
+        " as",
+        " food",
+        ",\n",
+        "And",
+        " oxygen",
+        " goes",
+        " to",
+        " the",
+        " air",
+        "."
+      ],
+      "request_sha256": "281016e1057d1c3c062801aed06598da0d6ea746e3ce9394148905f724c4a071",
+      "raw_provider_event_file_sha256": "391fc28a7b6c8be4abc3f820a088d40663e091e8e84a1ee854fd0a05bceaabb8"
+    },
+    {
+      "group": "plain",
+      "repetition": 2,
+      "provider_response_id": "resp_09ba6672ab760c58016ade6474ee9881a0aac00a01022e34ac",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 44,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 94,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 138,
+        "attribution": {
+          "items": {
+            "msg_09ba6672ab760c58016ade6474ef2c81a0a014437d0da35b4f": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_09ba6672ab760c58016ade6476430881a0b8d68c9c0da6f0ac": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 94,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 94
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 30,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis is how plants use sunlight to make their own food.\n\nPlants take in **water** through their roots and **carbon dioxide** from the air through their leaves. Using sunlight, they turn these into **sugar**, which helps them grow. They also release **oxygen** into the air.\n\nA green substance called **chlorophyll** helps plants capture sunlight.\n\nIn short: **sunlight + water + carbon dioxide → sugar + oxygen.**",
+      "response_bytes": 425,
+      "response_sha256": "0348863dc2de7263e26a8c06b8903b19880aa2f47db4c35fa70364dc4836f610",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " is",
+        " how",
+        " plants",
+        " use",
+        " sunlight",
+        " to",
+        " make",
+        " their",
+        " own",
+        " food",
+        ".\n\n",
+        "Plants",
+        " take",
+        " in",
+        " **",
+        "water",
+        "**",
+        " through",
+        " their",
+        " roots",
+        " and",
+        " **",
+        "carbon",
+        " dioxide",
+        "**",
+        " from",
+        " the",
+        " air",
+        " through",
+        " their",
+        " leaves",
+        ".",
+        " Using",
+        " sunlight",
+        ",",
+        " they",
+        " turn",
+        " these",
+        " into",
+        " **",
+        "s",
+        "ugar",
+        "**,",
+        " which",
+        " helps",
+        " them",
+        " grow",
+        ".",
+        " They",
+        " also",
+        " release",
+        " **",
+        "oxygen",
+        "**",
+        " into",
+        " the",
+        " air",
+        ".\n\n",
+        "A",
+        " green",
+        " substance",
+        " called",
+        " **",
+        "chlor",
+        "ophyll",
+        "**",
+        " helps",
+        " plants",
+        " capture",
+        " sunlight",
+        ".\n\n",
+        "In",
+        " short",
+        ":",
+        " **",
+        "sun",
+        "light",
+        " +",
+        " water",
+        " +",
+        " carbon",
+        " dioxide",
+        " →",
+        " sugar",
+        " +",
+        " oxygen",
+        ".",
+        "**"
+      ],
+      "request_sha256": "e3e51a2a3a93eea70443a6f666b53ec9233cf543706171bf12696ee73bf373ce",
+      "raw_provider_event_file_sha256": "04fc1c6994a552aac37255cdb4b7d5fa181f502da3d6396739e3097343ee2deb"
+    },
+    {
+      "group": "flat",
+      "repetition": 2,
+      "provider_response_id": "resp_0b88d26479a4d78d016ade647920c0819e9b767552ea733c53",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 2122,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 338,
+        "output_tokens_details": {
+          "reasoning_tokens": 289
+        },
+        "total_tokens": 2460,
+        "attribution": {
+          "items": {
+            "msg_0b88d26479a4d78d016ade64792164819eab0152181ac0535b": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0b88d26479a4d78d016ade6483049c819eaeae3cbc12149bab": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 49,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 49
+                }
+              ]
+            },
+            "rs_0b88d26479a4d78d016ade647a695c819eae4a6b3a52ed3c13": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 289
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 2108,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nPlants use the sun’s light to make food.\nGreen chlorophyll absorbs this light.\nLight helps turn carbon dioxide\nAnd water into plant sugars.\nSugar stores energy for growth.\nPlants also release oxygen.",
+      "response_bytes": 217,
+      "response_sha256": "692b7e487848c0b68d1716d55a2265863989cf9e05cc37ea982544bd944179e0",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Plants",
+        " use",
+        " the",
+        " sun",
+        "’s",
+        " light",
+        " to",
+        " make",
+        " food",
+        ".\n",
+        "Green",
+        " chlor",
+        "ophyll",
+        " absorbs",
+        " this",
+        " light",
+        ".\n",
+        "Light",
+        " helps",
+        " turn",
+        " carbon",
+        " dioxide",
+        "\n",
+        "And",
+        " water",
+        " into",
+        " plant",
+        " sugars",
+        ".\n",
+        "Sugar",
+        " stores",
+        " energy",
+        " for",
+        " growth",
+        ".\n",
+        "Plants",
+        " also",
+        " release",
+        " oxygen",
+        "."
+      ],
+      "request_sha256": "21bf1c153fbca79851dceade93b57fffa21fa6a9919802625e096e1161fdcd17",
+      "raw_provider_event_file_sha256": "c9b468f39f04f8b0e30dc167dc732e3a6ccabad698c811f53e8a6c11d4fe188e"
+    },
+    {
+      "group": "mg8",
+      "repetition": 2,
+      "provider_response_id": "resp_009c75f092d747ba016ade6483f78c819190533becb89786f0",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1437,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 342,
+        "output_tokens_details": {
+          "reasoning_tokens": 302
+        },
+        "total_tokens": 1779,
+        "attribution": {
+          "items": {
+            "msg_009c75f092d747ba016ade6483faec8191bb94d0a5966f995c": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_009c75f092d747ba016ade648fe99c8191877a0b52bd0c63e5": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 40,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 40
+                }
+              ]
+            },
+            "rs_009c75f092d747ba016ade6485454481919d384ee3fb39a9b7": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 302
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1423,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nPlants capture light with help from chlorophyll.\nWith water and with carbon dioxide,\nThey make glucose to store that energy.\nThey also make and release oxygen.",
+      "response_bytes": 175,
+      "response_sha256": "0adf7e0dd2bb248cc5c843b6d79e578e03de50864f20b495094fe8e143eba70b",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Plants",
+        " capture",
+        " light",
+        " with",
+        " help",
+        " from",
+        " chlor",
+        "ophyll",
+        ".\n",
+        "With",
+        " water",
+        " and",
+        " with",
+        " carbon",
+        " dioxide",
+        ",\n",
+        "They",
+        " make",
+        " glucose",
+        " to",
+        " store",
+        " that",
+        " energy",
+        ".\n",
+        "They",
+        " also",
+        " make",
+        " and",
+        " release",
+        " oxygen",
+        "."
+      ],
+      "request_sha256": "281016e1057d1c3c062801aed06598da0d6ea746e3ce9394148905f724c4a071",
+      "raw_provider_event_file_sha256": "4d634f0d5d01bece346b7eddd9d8f57da221bc649e914fcb4283e0b99df7c268"
+    },
+    {
+      "group": "plain",
+      "repetition": 3,
+      "provider_response_id": "resp_0ecc0a83717825bb016ade6494169481a1854a99bf6731ac40",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 44,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 98,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 142,
+        "attribution": {
+          "items": {
+            "msg_0ecc0a83717825bb016ade6494173081a19a7a068d25815d5a": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0ecc0a83717825bb016ade649517a481a19008f8ad0c77276a": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 98,
+              "content": [
+                {
+                  "input_tokens": 2,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 98
+                }
+              ]
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 30,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis is how plants use sunlight to make their own food.\n\nThey take in **water** through their roots and **carbon dioxide** from the air. Their leaves capture sunlight using a green substance called **chlorophyll**.\n\nWith that energy, plants turn water and carbon dioxide into **sugar** for growth. They also release **oxygen** into the air—the gas we breathe.\n\nIn short: **sunlight + water + carbon dioxide → sugar + oxygen**.",
+      "response_bytes": 440,
+      "response_sha256": "4ea8d449ddef14e64fbcea91f5d47dd21ea52fd5b355b69cc01fb035ab052183",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        " is",
+        " how",
+        " plants",
+        " use",
+        " sunlight",
+        " to",
+        " make",
+        " their",
+        " own",
+        " food",
+        ".\n\n",
+        "They",
+        " take",
+        " in",
+        " **",
+        "water",
+        "**",
+        " through",
+        " their",
+        " roots",
+        " and",
+        " **",
+        "carbon",
+        " dioxide",
+        "**",
+        " from",
+        " the",
+        " air",
+        ".",
+        " Their",
+        " leaves",
+        " capture",
+        " sunlight",
+        " using",
+        " a",
+        " green",
+        " substance",
+        " called",
+        " **",
+        "chlor",
+        "ophyll",
+        "**",
+        ".\n\n",
+        "With",
+        " that",
+        " energy",
+        ",",
+        " plants",
+        " turn",
+        " water",
+        " and",
+        " carbon",
+        " dioxide",
+        " into",
+        " **",
+        "s",
+        "ugar",
+        "**",
+        " for",
+        " growth",
+        ".",
+        " They",
+        " also",
+        " release",
+        " **",
+        "oxygen",
+        "**",
+        " into",
+        " the",
+        " air",
+        "—the",
+        " gas",
+        " we",
+        " breathe",
+        ".\n\n",
+        "In",
+        " short",
+        ":",
+        " **",
+        "sun",
+        "light",
+        " +",
+        " water",
+        " +",
+        " carbon",
+        " dioxide",
+        " →",
+        " sugar",
+        " +",
+        " oxygen",
+        "**",
+        "."
+      ],
+      "request_sha256": "e3e51a2a3a93eea70443a6f666b53ec9233cf543706171bf12696ee73bf373ce",
+      "raw_provider_event_file_sha256": "9e3e9d2e113d854570cfccbd11b7c63bf43168f8037287f48991f99628cdfe3b"
+    },
+    {
+      "group": "flat",
+      "repetition": 3,
+      "provider_response_id": "resp_067e56e7dff3fc63016ade649862a4819fbec981fe131129d3",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 2122,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 324,
+        "output_tokens_details": {
+          "reasoning_tokens": 292
+        },
+        "total_tokens": 2446,
+        "attribution": {
+          "items": {
+            "msg_067e56e7dff3fc63016ade64986330819f8520ca0dff7dc098": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_067e56e7dff3fc63016ade64a249bc819fa78286bc4e25cccb": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 32,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 32
+                }
+              ]
+            },
+            "rs_067e56e7dff3fc63016ade6499a67c819f90b92b29388df9e5": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 292
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 2108,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nWater and carbon dioxide are used.\nPlants use light energy to make glucose.\nThen oxygen is also made and freed.",
+      "response_bytes": 127,
+      "response_sha256": "e41645e5e0383deabcfd444a9c37828f28eced38b56a95e0534654c0ee16bd3d",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Water",
+        " and",
+        " carbon",
+        " dioxide",
+        " are",
+        " used",
+        ".\n",
+        "Plants",
+        " use",
+        " light",
+        " energy",
+        " to",
+        " make",
+        " glucose",
+        ".\n",
+        "Then",
+        " oxygen",
+        " is",
+        " also",
+        " made",
+        " and",
+        " freed",
+        "."
+      ],
+      "request_sha256": "21bf1c153fbca79851dceade93b57fffa21fa6a9919802625e096e1161fdcd17",
+      "raw_provider_event_file_sha256": "02e4f60f09c94404f286af2f257b84b4ababfbae603f17daf0de1fe335cf7484"
+    },
+    {
+      "group": "mg8",
+      "repetition": 3,
+      "provider_response_id": "resp_0aa0f3a1930cc1b6016ade64a4fa808192a324349d3e441cc4",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "input_tokens": 1437,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens": 259,
+        "output_tokens_details": {
+          "reasoning_tokens": 222
+        },
+        "total_tokens": 1696,
+        "attribution": {
+          "items": {
+            "msg_0aa0f3a1930cc1b6016ade64a4fb208192a6bdedb88a427efc": {
+              "input_tokens": 12,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0,
+              "content": [
+                {
+                  "input_tokens": 12,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 0
+                }
+              ]
+            },
+            "msg_0aa0f3a1930cc1b6016ade64abb02c81928f8a0e52e05ef562": {
+              "input_tokens": 0,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 37,
+              "content": [
+                {
+                  "input_tokens": 0,
+                  "cached_tokens": 0,
+                  "cache_write_tokens": 0,
+                  "output_tokens": 37
+                }
+              ]
+            },
+            "rs_0aa0f3a1930cc1b6016ade64a639cc8192a84669cc70522744": {
+              "input_tokens": 2,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 222
+            }
+          },
+          "request_fields": {
+            "instructions": {
+              "input_tokens": 1423,
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "output_tokens": 0
+            }
+          }
+        }
+      },
+      "response": "Photosynthesis:\nPlants take in carbon dioxide\nand water, using light to make\nthe sugar glucose for their growth,\nand send out oxygen as gas.",
+      "response_bytes": 140,
+      "response_sha256": "2e57430311f0dbb5b1002872ed008d91f9c83206631d561e53dfa3ed5221f8f8",
+      "output_text_deltas": [
+        "Photos",
+        "ynthesis",
+        ":\n",
+        "Plants",
+        " take",
+        " in",
+        " carbon",
+        " dioxide",
+        "\n",
+        "and",
+        " water",
+        ",",
+        " using",
+        " light",
+        " to",
+        " make",
+        "\n",
+        "the",
+        " sugar",
+        " glucose",
+        " for",
+        " their",
+        " growth",
+        ",\n",
+        "and",
+        " send",
+        " out",
+        " oxygen",
+        " as",
+        " gas",
+        "."
+      ],
+      "request_sha256": "281016e1057d1c3c062801aed06598da0d6ea746e3ce9394148905f724c4a071",
+      "raw_provider_event_file_sha256": "5ea86e6717876264f43e913b1b507470297942541c3c03940a2ac5cf463edda7"
+    }
+  ],
+  "evidence_scope": "Exact generated response text, output-text deltas, complete model-facing request per group, and provider completion metadata. Full reasoning/private transport event streams are not published. Local-only paths are omitted; observed content is unchanged.",
+  "source_summary_sha256": "a0b28288582df3ac7291d617ea3380120cc7eb6915386d9d07decc596c165e7f"
+}

@@ -1,0 +1,18 @@
+{
+  "gate_id": "G_PHOTO_SIMPLE",
+  "gate_name": "Revised simple response contract",
+  "atomic_requirements": [
+    {
+      "req_id": "R1",
+      "requirement": "Explain the energy source, both inputs and both outputs accurately in one sentence of 16 to 24 words."
+    },
+    {
+      "req_id": "R2",
+      "requirement": "Begin with the subject Photosynthesis. Use a simple predicate and ninth-grade plain language."
+    },
+    {
+      "req_id": "R3",
+      "requirement": "Follow every GST global. Do not add a second sentence."
+    }
+  ]
+}

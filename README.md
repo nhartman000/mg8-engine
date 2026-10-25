@@ -65,6 +65,12 @@ python3 experiments/run_experiment.py --skip-llm   # coverage stats only, no API
 
 Nothing in the results is pre-claimed: if the no-gates control is as deterministic as the gated runs, that is what the report says.
 
+## Opt-in response contracts
+
+The [response-contract API and CLI](docs/response-contracts.md) bind complete GST globals/facts and G8SON atomic requirements into actual model requests, with NYCH handling the user prompt first. The profile omits temperature and seed, preserves raw output, records fresh attempts and compares UTF-8 bytes without answer reuse or repair. It does not change the existing `mg8-run` or legacy keeper defaults.
+
+Use the [simple, ordered and grammar examples](examples/response-contracts/). [Published live evidence](experiments/response-contracts/README.md) includes the original divergent batch and the revised three-by-three matching batch. These are finite observations, not a guarantee of deterministic inference or independent certification of every semantic requirement.
+
 ## What this engine supports
 
 The loader now supports two input profiles:

@@ -1,0 +1,16 @@
+{
+  "mg8_version": "1.0",
+  "unit_id": "experiment.photosynthesis.ordered.001",
+  "entry": "flow.ork",
+  "state": [
+    "context.gst"
+  ],
+  "gates": [
+    "conditions.g8son"
+  ],
+  "trace": "trace/execution.qson",
+  "metadata": {
+    "profile": "response-contract-v1",
+    "variant": "ordered"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "model": "gpt-6.1-sol",
+  "instructions": "Answer the user prompt. Apply all supplied response requirements and interpretation context when present. Return only the explanation, without discussing these instructions.\n",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "What is photosynthesis? Explain simply."
+        }
+      ]
+    }
+  ],
+  "store": false,
+  "stream": true,
+  "reasoning": {
+    "effort": "low",
+    "summary": "auto"
+  }
+}
