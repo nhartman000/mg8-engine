@@ -1,0 +1,22 @@
+{
+  "gate_id": "G_PHOTO_GRAMMAR",
+  "gate_name": "Revised grammar response contract",
+  "atomic_requirements": [
+    {
+      "req_id": "R1",
+      "requirement": "Use the GST facts to instantiate only this grammatical production: SUBJECT FINITE_VERB ENERGY CONVERSION_LINK INPUT_1 COORDINATOR INPUT_2 RESULT_LINK OUTPUT_1 COORDINATOR OUTPUT_2 TERMINATOR."
+    },
+    {
+      "req_id": "R2",
+      "requirement": "SUBJECT is the GST subject; ENERGY is its energy_source. INPUT and OUTPUT indices follow GST list order. Do not include the organisms field."
+    },
+    {
+      "req_id": "R3",
+      "requirement": "FINITE_VERB is uses. CONVERSION_LINK is to convert. COORDINATOR is and. RESULT_LINK is into. TERMINATOR is a period attached to OUTPUT_2."
+    },
+    {
+      "req_id": "R4",
+      "requirement": "Join adjacent grammar constituents with exactly one ASCII space, except attach TERMINATOR directly. No alternate wording, added constituents, newline, leading or trailing whitespace. Follow all GST globals."
+    }
+  ]
+}

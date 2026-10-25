@@ -1,0 +1,22 @@
+{
+  "gate_id": "G_PHOTO_ORDERED",
+  "gate_name": "Revised ordered response contract",
+  "atomic_requirements": [
+    {
+      "req_id": "R1",
+      "requirement": "Begin with Photosynthesis as the grammatical subject and uses as its finite verb."
+    },
+    {
+      "req_id": "R2",
+      "requirement": "Name the energy source, then the inputs, then the outputs, in exactly the order listed in GST facts."
+    },
+    {
+      "req_id": "R3",
+      "requirement": "Use the exact GST scientific term spellings; use glucose, not sugar, and sunlight, not light energy."
+    },
+    {
+      "req_id": "R4",
+      "requirement": "Use one active-voice sentence and one final period. No synonyms for named facts or optional explanatory clauses. Follow all GST globals."
+    }
+  ]
+}

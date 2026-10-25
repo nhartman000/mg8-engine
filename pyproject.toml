@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 mg8-run = "mg8_engine.cli:cli"
+mg8-response = "mg8_engine.response_contract:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
