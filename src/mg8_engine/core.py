@@ -50,12 +50,25 @@ def _load_ork_flow(path: Path) -> List[str]:
     grammar is limited to this JSON shape.
     """
     payload = _load_json(path)
-    flow = payload.get("flow") or payload.get("ork_flow")
-    if flow is None and isinstance(payload.get("steps"), list):
-        flow = [
-            step.get("gate_id") if isinstance(step, dict) else step
-            for step in payload["steps"]
-        ]
+    allowed = {"ork_profile", "ork_version", "flow", "ork_flow", "steps"}
+    if not isinstance(payload, dict) or set(payload) - allowed:
+        raise ValueError("Unsupported ORK policy/control fields for mg8-engine-reference-1")
+    if "ork_version" in payload and payload["ork_version"] != "1.0":
+        raise ValueError("Unsupported legacy ORK version for mg8-engine-reference-1")
+    if payload.get("ork_profile", "mg8-engine-reference-1") != "mg8-engine-reference-1":
+        raise ValueError("Unsupported ORK profile; use its declared runtime, not the reference executor")
+    representations = [key for key in ("flow", "ork_flow", "steps") if key in payload]
+    if len(representations) != 1:
+        raise ValueError("Ambiguous ORK flow: declare exactly one flow, ork_flow or steps list")
+    selected = representations[0]
+    flow = payload[selected]
+    if selected == "steps" and isinstance(flow, list):
+        for step in flow:
+            if isinstance(step, dict) and set(step) != {"gate_id"}:
+                raise ValueError("Unsupported ORK step controls for the sequential reference profile")
+        flow = [step["gate_id"] if isinstance(step, dict) else step for step in flow]
+    if not flow:
+        raise ValueError("Unsupported empty ORK flow; implicit execution of all gates is not a declared sequence")
     if not isinstance(flow, list) or not all(isinstance(x, str) for x in flow):
         raise ValueError(
             f"Reference-engine ORK file {path} must provide flow/ork_flow as gate IDs"

@@ -11,8 +11,8 @@ dependencies = [
     "pydantic>=2.8",
     "click>=8.1",
     "google-genai>=1.0",
-    "nych @ git+https://github.com/nhartman000/nych.git",
-    "tcta-engine @ git+https://github.com/nhartman000/TCTA.git",
+    "nych @ git+https://github.com/nhartman000/nych.git@57b81e9220069dd5ff72197b41288c9613e3343b",
+    "tcta-engine @ git+https://github.com/nhartman000/TCTA.git@f2882c131e3e220d1cf1c9b7448625aabd51a85f",
 ]
 
 [project.scripts]

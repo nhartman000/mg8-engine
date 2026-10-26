@@ -6,20 +6,16 @@ on:
   pull_request:
 
 jobs:
-  unit-tests:
+  clean-wheel-tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - name: Install package
-        run: python -m pip install -e .
-      # The pinned NYCH wheel omits its schemas subpackage. Use its complete
-      # source checkout until that dependency's package discovery is corrected.
-      - name: Install complete pinned NYCH source
-        run: python -m pip install --no-deps --src "$RUNNER_TEMP/mg8-dependencies" -e "git+https://github.com/nhartman000/nych.git@cee3610723ffe4877c424591711fed29717ab655#egg=nych"
-      - name: Run no-network unit tests
-        run: python -m unittest discover -s tests -p "test_*.py"
-      - name: Verify published live evidence
-        run: python experiments/response-contracts/verify_evidence.py
+          python-version: ${{ matrix.python-version }}
+      - name: Build and test installed wheels (no editable dependencies)
+        run: python -I scripts/clean_wheel.py --work-dir "$RUNNER_TEMP/mg8-clean-wheel"
