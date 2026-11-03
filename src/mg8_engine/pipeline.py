@@ -197,10 +197,14 @@ def validate_mapping_plan(plan: Dict[str, Any], gst_payload: Dict[str, Any]) -> 
                  for p in pretext.get("protected", [])}
     # The canonical operators are enforced even if a pretext omits or
     # alters its operator table -- the engine doesn't trust its inputs.
-    operators = {**CANON_MODALITY_OPERATORS,
-                 **pretext.get("modality_operators", {})}
-    operator_words = set(operators) | set(operators.values())
-    operator_glyphs = {_bare_glyph(g) for g in operators.values()}
+    # Canonical entries are applied LAST so a supplied table can add but
+    # never replace a canonical operator glyph; supplied values are still
+    # protected too (third-opinion review 2026-11-03, finding 5).
+    supplied = pretext.get("modality_operators", {}) or {}
+    operators = {**supplied, **CANON_MODALITY_OPERATORS}
+    operator_words = set(operators) | set(operators.values()) | set(supplied.values())
+    operator_glyphs = ({_bare_glyph(g) for g in operators.values()}
+                       | {_bare_glyph(g) for g in supplied.values() if isinstance(g, str)})
     pinned = {p["word"].lower(): p["symbol_id"]
               for p in pretext.get("pinned", [])}
 
@@ -374,6 +378,21 @@ def validate_congruence_response(response: Dict[str, Any],
         raise PipelineError(
             f".ork flow references unknown gate ids: {unknown} "
             "(REJECT IF ORK_FLOW_REFERENCES_UNDECLARED_GATE)"
+        )
+    duplicates = sorted({g for g in gate_ids if gate_ids.count(g) > 1})
+    if duplicates:
+        raise PipelineError(
+            f"gate ids declared more than once across the .g8son files: {duplicates} "
+            "(REJECT IF G8SON_DUPLICATE_GATE_ID)"
+        )
+    # The three files are sequential: the flow must run every declared gate
+    # exactly once, in file order then in-file order (third-opinion review
+    # 2026-11-03, finding 2: partial and reversed flows were accepted).
+    if list(flow) != gate_ids:
+        raise PipelineError(
+            f".ork flow {list(flow)} must cover every declared gate exactly "
+            f"once in declared file order {gate_ids} "
+            "(REJECT IF ORK_FLOW_NOT_COMPLETE_DECLARED_ORDER)"
         )
 
 
@@ -656,8 +675,22 @@ def run_pipeline(gst_payload: Dict[str, Any], mapping_llm: LLMCallback,
             input_state_id=gst_payload.get("state_id"),
         ))
 
+    # One monotonic sequence over the whole run (third-opinion review
+    # 2026-11-03, finding 3: injected audit entries collided with the
+    # executor's gate steps, giving [0,1,2,1,2,3]). Gate entries keep the
+    # executor's own per-gate counter as `gate_step`.
+    for index, entry in enumerate(unit.qson.entries):
+        if entry.action is None and entry.model_extra is not None and "gate_step" not in entry.model_extra:
+            setattr(entry, "gate_step", entry.sequence)
+        entry.sequence = index
+
     handoff = write_output_handoff(unit, out_dir, canon_blocks=canon_blocks,
                                    max_bytes=gitson_max_bytes)
+    # Flush the manifest-bound trace resource; assemble_unit only created
+    # it empty, so consumers following unit.mg8 -> trace saw zero entries.
+    trace_path = Path(out_dir) / "trace.qson"
+    _write_json(trace_path, unit.qson.model_dump(mode="json", by_alias=True))
+    handoff["trace_qson"] = trace_path
     paths = {"unit_mg8": mg8_path, **handoff}
     if tcta_path is not None:
         paths["trajectory_tcta"] = tcta_path

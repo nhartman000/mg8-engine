@@ -13,8 +13,9 @@ sentence
   → nych (deterministic: role tagging, domain/competency, TOTE-loop lookup,
           consonant skeletons, protected terms)          [nych repo]
   → .gst pretext                                          [gst spec]
-  → FIRST REAL LLM CALL (Gestalt mapping + gate plan)
-  → engine-side canon validation (validate_plan — the model is NOT trusted)
+  → FIRST REAL LLM CALL (Gestalt mapping) → validate_mapping_plan
+  → SECOND LLM CALL (congruence; on PASS three .g8son + .ork) → validate_congruence_response
+    (engine-side canon validation — the model is NOT trusted)
   → .g8son gates (1–3 per file, every gate has an exit)   [g8son spec]
   → .ork flow → .mg8 unit executed here                   [mg8 spec]
   → .qson audit trace                                     [qson spec]
@@ -44,10 +45,14 @@ git clone https://github.com/nhartman000/T.O.T.E-loops.git
 git clone https://github.com/nhartman000/mg8-engine.git
 cd mg8-engine
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e . -e ../nych
+pip install -e .        # pulls the pinned NYCH + TCTA commits declared in pyproject.toml
+# Only if you are editing the sibling NYCH checkout too (overrides the pin; pip check will report it):
+#   pip install --no-deps -e ../nych
 
 python3 demo.py "Re-ran both test suites after changes"
 ```
+
+(Installing the engine and `../nych` as two editables in one pip command fails with `ResolutionImpossible`: the engine pins NYCH to an exact Git commit, which pip treats as a different requirement from a local editable checkout even at the same version.) Note that `demo.py` also puts the sibling `../nych` on `sys.path`, so a demo run is not installed-wheel provenance evidence; use `scripts/clean_wheel.py` for that.
 
 On first run the demo asks which provider you use (Anthropic / OpenAI / Gemini / Vertex / Vertex Batch), lets you paste the API key, and saves it to a git-ignored `.env` — or copy [`.env.example`](.env.example) to `.env` yourself. The TOTE database is built automatically from the sibling checkout.
 
@@ -154,25 +159,33 @@ examples/tote_example.mg8
 
 ```text
 USER → NYCH encoder (deterministic, the nych package) → .gst pretext →
-first LLM call (prune with dither + Gestalt mapping + .g8son creation) →
-.ork flow ordering → MG8 engine compiles/runs the .mg8 in one call →
-output handed off as .mg8 + .gitson canon bundle
+FIRST LLM call: Gestalt mapping only → validate_mapping_plan →
+SECOND LLM call: congruence assessment (PASS/FAIL/INTERMEDIATE); only on PASS
+  exactly three .g8son files + .ork flow → validate_congruence_response →
+MG8 engine runs the unit → output.mg8 + trace.qson + .gitson canon bundle
 ```
 
-`run_pipeline(gst_payload, mapping_llm, out_dir)` takes the `.gst` pretext
-produced by `nych.gst_export.build_gst`, prompts the mapping LLM, and
-**validates the returned plan against the canon rules** rather than
-trusting it: mappings only for requested words with the consonant skeleton
+`run_pipeline(gst_payload, mapping_llm, congruence_llm, out_dir)` takes the
+`.gst` pretext produced by `nych.gst_export.build_gst`, makes the two calls
+above, and **validates each response against the canon rules** rather than
+trusting it (`validate_plan` is the legacy one-call validator and is not used
+by this pipeline): mappings only for requested words with the consonant skeleton
 embedded in each symbol id; modality operators never remapped;
 `#temp-invariant` pins respected; **scientific names, people's names, and
 prescription drug names never Gestalt-mapped**; 1–3 gates per `.g8son`,
-every gate a bounded loop with an exit condition; `.ork` flow restricted
-to declared gates. Violations raise `PipelineError` — nothing is repaired
+every gate a bounded loop with an exit condition; gate ids unique; the
+`.ork` flow must run every declared gate exactly once in declared file
+order; a supplied modality table can add operators but never replace a
+canonical glyph. Violations raise `PipelineError` — nothing is repaired
 silently.
 
-The accepted mappings are recorded as sequence-0 `nych.gestalt_mapping`
-QSON audit entries (the consonant-embedded id strings are the audit trail)
-and returned as `pins` for the caller's nych `SessionInvariants` store.
+The accepted mappings are recorded as the sequence-0 `nych.gestalt_mapping`
+QSON audit entry, followed by the congruence assessment (1), the TCTA
+narrowing (2, when computed) and the gate attempts; sequence numbers are
+monotonic over the whole run (gate entries keep the executor's own counter
+as `gate_step`) and the same entries are written to the manifest-bound
+`trace.qson` and embedded in `output.mg8`. The consonant-embedded id strings
+are the audit trail; the accepted mappings are also returned as `pins` for the caller's nych `SessionInvariants` store.
 The executed unit is written as `output.mg8` (reloadable by `load_mg8`)
 plus a `.gitson` canon bundle (`mg8_engine.gitson`) so a receiving LLM can
 ingest the NYCH/MG8 rules; the `.gitson` size limit is a configurable
