@@ -130,6 +130,17 @@ trace_id = one attempted gate execution
 
 Every gate attempt receives a new `TRJ_*` trace identifier.
 
+## Stop-on-fail execution
+
+The executor halts on a FAIL gate result. When a gate returns `FAIL` (an explicit `gate_result`/`result` of `"FAIL"`, or `transformed: false` with no explicit result):
+
+- no further gates or operations in the flow run;
+- a final `mg8.halt` entry is appended to the QSON trace (`action: "halt"`, `result: "FAIL"`, `halted_at_gate`, `halted_at_step`, `skipped_gates`, `reason`);
+- `unit.qson.status` is set to `"HALTED"` (a completed flow sets `"COMPLETED"`);
+- `mg8_engine.GateFailure` is raised, carrying the partially executed unit as `.unit`, plus `.gate_id`, `.step` and `.status == "HALTED"`. The CLI still writes the trace and exits non-zero.
+
+The only exception is a gate that **explicitly declares** `outcomes: {"FAIL": "repeat"}` (a TOTE test loop): that gate is re-tested, bounded by `max_iterations` (30); exhausting the bound also halts (`RuntimeError`, status `"HALTED"`). See `tests/test_stop_on_fail.py`.
+
 ## QSON output
 
 The CLI writes the **QSON trace object itself**, not a serialized dump of the entire MG8 runtime object.
@@ -279,6 +290,8 @@ The test uses a deterministic local callback and verifies:
 - QSON result recording.
 
 ## Determinism statement
+
+`mg8-engine` is a deterministic logic-gated execution engine: gates run in the declared ORK order, a FAIL result halts execution (see *Stop-on-fail execution*), and every gate attempt and the halt itself are recorded in the QSON trace.
 
 This engine can make the **control flow, resource resolution, event identity, and trace construction deterministic** when its inputs and callback are deterministic.
 
