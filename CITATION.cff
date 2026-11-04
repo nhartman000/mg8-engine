@@ -6,6 +6,7 @@ authors:
   - given-names: Nicholas C.
     family-names: Hartman
     affiliation: American Milestone Inc
+abstract: "Reference runtime for the MG8 file family. A deterministic logic-gated execution engine: gates run in the declared ORK order, a FAIL gate result halts execution (no further gates or operations run; GateFailure raised, trace status HALTED), and every gate attempt and the halt are recorded in an event-level QSON trace. Determinism covers control flow and trace construction, not third-party model outputs."
 repository-code: "https://github.com/nhartman000/mg8-engine"
 license: Apache-2.0
 keywords:

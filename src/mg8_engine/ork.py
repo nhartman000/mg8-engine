@@ -66,8 +66,43 @@ def _infer_gate_result(output) -> str | None:
     return None
 
 
+class GateFailure(RuntimeError):
+    """Raised when a gate returns FAIL and the executor halts the flow.
+
+    No further gates or operations run after the failing gate. The partially
+    executed unit is attached as ``.unit``; its QSON trace ends with a
+    ``mg8.halt`` entry and ``unit.qson.status == "HALTED"``.
+    """
+
+    def __init__(self, unit: Mg8Unit, gate_id: str, step: int, output=None):
+        self.unit = unit
+        self.gate_id = gate_id
+        self.step = step
+        self.output = output
+        self.status = "HALTED"
+        super().__init__(
+            f"MG8 execution halted: gate {gate_id!r} returned FAIL at step {step}; "
+            "no further gates or operations were run"
+        )
+
+
+def _fail_route(gate: G8Gate) -> str:
+    """Declared routing for a FAIL result. Only an explicit "repeat" retries."""
+    route = (gate.outcomes or {}).get("FAIL")
+    return route.lower() if isinstance(route, str) else "stop"
+
+
 def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
-    """Execute the reference-engine ORK flow and emit event-level QSON entries."""
+    """Execute the reference-engine ORK flow and emit event-level QSON entries.
+
+    Stop-on-fail: when a gate's result is FAIL, execution halts immediately --
+    no later gate (or operation) in the flow runs, a ``mg8.halt`` entry is
+    appended to the QSON trace, ``unit.qson.status`` is set to ``"HALTED"`` and
+    :class:`GateFailure` is raised. The single exception is a gate that
+    explicitly declares ``outcomes: {"FAIL": "repeat"}`` (a TOTE test loop):
+    that gate is re-tested, bounded by ``max_iterations``. A completed flow
+    sets ``unit.qson.status`` to ``"COMPLETED"``.
+    """
     if llm_callback is None:
         def dummy_llm(_prompt):
             return {"transformed": True, "gate_result": "PASS"}
@@ -118,6 +153,25 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
             control_fields = {"transformed", "gate_result", "result", "action"}
             state.update({k: v for k, v in output.items() if k not in control_fields})
 
+        if gate_result == "FAIL" and _fail_route(gate) != "repeat":
+            unit.qson.entries.append(QsonEntry(
+                trace_id=f"TRJ_{uuid4().hex}",
+                run_id=unit.qson.run_id,
+                file_id=source_file_id or unit.g8son.file_id,
+                gate_id="mg8.halt",
+                step=step + 1,
+                input_state_id=unit.gst.state_id,
+                result="FAIL",
+                action="halt",
+                halted_at_gate=gate.gate_id,
+                halted_at_step=step,
+                skipped_gates=list(flow[i + 1:]),
+                reason=f"gate {gate.gate_id} returned FAIL; stop-on-fail",
+            ))
+            unit.qson.status = "HALTED"
+            unit.gst.state = state
+            raise GateFailure(unit, gate.gate_id, step, output)
+
         # TOTE behavior is retained as a legacy/reference runtime extension rather than
         # generalized into the base MG8/G8SON specifications.
         if gate.type == "tote_test":
@@ -137,9 +191,11 @@ def execute_ork(unit: Mg8Unit, llm_callback=None) -> Mg8Unit:
             i += 1
 
     if step >= max_iterations and i < len(flow):
+        unit.qson.status = "HALTED"
         raise RuntimeError(
             f"MG8 reference runtime exceeded max_iterations={max_iterations}"
         )
 
     unit.gst.state = state
+    unit.qson.status = "COMPLETED"
     return unit

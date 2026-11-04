@@ -6,6 +6,7 @@ import click
 from google import genai
 
 from .core import run_mg8
+from .ork import GateFailure
 
 _gemini_client = None
 
@@ -73,11 +74,19 @@ def cli(mg8_file, output):
     """Run an MG8 unit with the reference Gemini adapter."""
     click.echo(f"Loading MG8 unit: {mg8_file}")
 
-    result = run_mg8(mg8_file, get_gemini_llm())
+    halted = None
+    try:
+        result = run_mg8(mg8_file, get_gemini_llm())
+    except GateFailure as exc:
+        halted, result = exc, exc.unit
 
     out_path = Path(output) if output else _default_trace_path(mg8_file, result)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(result.qson.model_dump_json(indent=2), encoding="utf-8")
+
+    if halted is not None:
+        click.echo(f"QSON trace (with halt record) saved to: {out_path}")
+        raise click.ClickException(str(halted))
 
     click.echo(f"Execution complete. QSON trace saved to: {out_path}")
     click.echo(f"Gate attempts traced: {len(result.qson.entries)}")
