@@ -140,6 +140,14 @@ class CongruenceResponseValidationTests(unittest.TestCase):
     def test_valid_pass_response_passes(self):
         validate_congruence_response(self.response, self.gst)  # no raise
 
+    def test_gate_with_string_outcomes_is_rejected_at_validation(self):
+        # Observed with a small model: "outcomes" authored as a string. It used to pass validation
+        # and then crash unit assembly with a pydantic traceback.
+        self.response["g8son_files"][0]["gates"][0]["outcomes"] = "proceed_to_test_execution"
+        with self.assertRaises(PipelineError) as ctx:
+            validate_congruence_response(self.response, self.gst)
+        self.assertIn("G8Gate schema", str(ctx.exception))
+
     def test_unknown_result_literal_rejected(self):
         self.response["congruence_result"] = "UNKNOWN"
         with self.assertRaises(PipelineError):

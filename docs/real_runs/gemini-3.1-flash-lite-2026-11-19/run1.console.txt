@@ -1,0 +1,13 @@
+========================================================================
+NYCH -> MG8 pipeline demo (real LLM, end to end)
+========================================================================
+Provider: gemini  model: gemini-3.1-flash-lite-preview
+Input: 'Re-ran both test suites after changes'
+
+[1] Deterministic extraction (no LLM):
+    action: 'Re-ran'  domain: UNRESOLVED  tote_match: True
+    words needing Gestalt mapping: ['Re-ran', 'both', 'test', 'suites', 'after', 'changes']
+
+[2] First real LLM call (Gestalt mapping only, nych.bonit STEP 2)...
+    REJECTED by canon validation: gate 'gate_init_run' does not match the G8Gate schema: outcomes: Input should be a valid dictionary (REJECT IF GATE_NOT_G8SON_SCHEMA_VALID)
+    (This is the engine refusing an invalid LLM plan/response -- disclosed, not repaired.)

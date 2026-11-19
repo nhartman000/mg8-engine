@@ -1,0 +1,7 @@
+{
+  "flow": [
+    "gate_01_run_unit_tests",
+    "gate_02_verify_state",
+    "gate_03_execute_tagging"
+  ]
+}

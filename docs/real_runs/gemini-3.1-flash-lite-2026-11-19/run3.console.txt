@@ -1,0 +1,24 @@
+========================================================================
+NYCH -> MG8 pipeline demo (real LLM, end to end)
+========================================================================
+Provider: gemini  model: gemini-3.1-flash-lite-preview
+Input: 'Verify the backup and confirm no errors were reported'
+
+[1] Deterministic extraction (no LLM):
+    action: 'Verify'  domain: UNRESOLVED  tote_match: True
+    words needing Gestalt mapping: ['Verify', 'backup', 'confirm', 'no', 'errors', 'were', 'reported']
+
+[2] First real LLM call (Gestalt mapping only, nych.bonit STEP 2)...
+[3] Mapping plan PASSED canon validation.
+    mappings: [('Verify', 'gestalt.vrfy'), ('backup', 'gestalt.bckp'), ('confirm', 'gestalt.cnfrm'), ('no', 'gestalt.n'), ('errors', 'gestalt.rrs'), ('were', 'gestalt.wr'), ('reported', 'gestalt.rprtd')]
+[4] Second real LLM call (congruence assessment, mg8.bonit STEP 3)...
+[5] Congruence result: PASS -- g8son files: 3  gates in flow: ['gate_01_verify_backup', 'gate_02_check_errors', 'gate_03_report_status']
+[6] Unit executed; QSON entries: 6  final state keys: ['source_text', 'roles', 'gestalt', 'next_gate']
+[7] Outputs written under ./demo_output/
+    unit_mg8: ./demo_output/unit.mg8
+    mg8: ./demo_output/output.mg8
+    gitson: [PosixPath('./demo_output/canon.1.1.gitson')]
+    trace_qson: ./demo_output/trace.qson
+    trajectory_tcta: ./demo_output/trajectory.tcta
+
+Token cost (provider-reported): 3698 in / 852 out across 5 calls

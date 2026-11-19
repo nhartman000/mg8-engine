@@ -1,0 +1,15 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_final_confirm",
+  "gates": [
+    {
+      "id": "gate_03_report_status",
+      "type": "bounded_repeat",
+      "condition": "gestalt.cnfrm == true",
+      "outcomes": {
+        "confirmed": "exit",
+        "unconfirmed": "retry"
+      }
+    }
+  ]
+}

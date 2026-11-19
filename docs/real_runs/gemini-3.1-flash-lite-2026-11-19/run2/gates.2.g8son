@@ -1,0 +1,18 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_pre_tag_validation",
+  "gates": [
+    {
+      "id": "gate_02_verify_state",
+      "type": "bounded_repeat",
+      "conditions": [
+        "unit_tests_passed == true",
+        "repository_clean == true"
+      ],
+      "outcomes": {
+        "ready": "initiate_tagging",
+        "blocked": "abort_process"
+      }
+    }
+  ]
+}

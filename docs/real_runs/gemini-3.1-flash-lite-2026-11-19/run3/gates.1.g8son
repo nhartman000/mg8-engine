@@ -1,0 +1,15 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_verify_init",
+  "gates": [
+    {
+      "id": "gate_01_verify_backup",
+      "type": "bounded_repeat",
+      "condition": "gestalt.vrfy == true",
+      "outcomes": {
+        "success": "gate_02_check_errors",
+        "failure": "gate_03_report_status"
+      }
+    }
+  ]
+}

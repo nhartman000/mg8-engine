@@ -1,0 +1,24 @@
+========================================================================
+NYCH -> MG8 pipeline demo (real LLM, end to end)
+========================================================================
+Provider: gemini  model: gemini-3.1-flash-lite-preview
+Input: 'Run the unit tests before tagging a release'
+
+[1] Deterministic extraction (no LLM):
+    action: 'Run'  domain: UNRESOLVED  tote_match: True
+    words needing Gestalt mapping: ['Run', 'unit', 'tests', 'before', 'tagging', 'release']
+
+[2] First real LLM call (Gestalt mapping only, nych.bonit STEP 2)...
+[3] Mapping plan PASSED canon validation.
+    mappings: [('Run', 'gestalt.rn'), ('unit', 'gestalt.nt'), ('tests', 'gestalt.tsts'), ('before', 'gestalt.bfr'), ('tagging', 'gestalt.tgng'), ('release', 'gestalt.rls')]
+[4] Second real LLM call (congruence assessment, mg8.bonit STEP 3)...
+[5] Congruence result: PASS -- g8son files: 3  gates in flow: ['gate_01_run_unit_tests', 'gate_02_verify_state', 'gate_03_execute_tagging']
+[6] Unit executed; QSON entries: 6  final state keys: ['source_text', 'roles', 'task_status', 'test_suite_exit_code', 'next_routing', 'unit_tests_passed', 'repository_clean', 'tagging_initiated']
+[7] Outputs written under ./demo_output/
+    unit_mg8: ./demo_output/unit.mg8
+    mg8: ./demo_output/output.mg8
+    gitson: [PosixPath('./demo_output/canon.1.1.gitson')]
+    trace_qson: ./demo_output/trace.qson
+    trajectory_tcta: ./demo_output/trajectory.tcta
+
+Token cost (provider-reported): 3756 in / 823 out across 5 calls
