@@ -1,0 +1,7 @@
+{
+  "flow": [
+    "gate_01_verify_backup",
+    "gate_02_check_errors",
+    "gate_03_report_status"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_init_test_run",
+  "gates": [
+    {
+      "id": "gate_01_run_unit_tests",
+      "type": "bounded_repeat",
+      "condition": "test_suite_exit_code == 0",
+      "outcomes": {
+        "success": "proceed_to_tagging",
+        "failure": "halt_and_report"
+      }
+    }
+  ]
+}

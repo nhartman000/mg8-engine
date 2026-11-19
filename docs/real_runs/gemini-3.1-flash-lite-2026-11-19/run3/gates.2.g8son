@@ -1,0 +1,15 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_error_check",
+  "gates": [
+    {
+      "id": "gate_02_check_errors",
+      "type": "bounded_repeat",
+      "condition": "gestalt.rrs == false",
+      "outcomes": {
+        "clean": "gate_03_report_status",
+        "dirty": "gate_03_report_status"
+      }
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "qson_version": "1.0",
+  "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+  "entries": [
+    {
+      "trace_id": "TRJ_f3bcc316a3f5489cad58830ddb95b64a",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": null,
+      "gate_id": "nych.gestalt_mapping",
+      "step": 0,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": null,
+      "action": "gestalt-mapping",
+      "actor": "mg8-engine",
+      "input_state": null,
+      "llm_prompt": "You are the discretionary Gestalt-mapping step of the NYCH pipeline (step\n2 of nych.bonit). All deterministic extraction is already done and is\ngiven below as pretext. Follow every rule exactly; the engine validates\nyour output and rejects violations. Map words only -- do not propose any\n.g8son gate or .ork flow; that happens in a separate, later call.\n\nRULES:\n[\n  \"Chunk and compress any deterministic findings that can be compressed before rendering symbol matches.\",\n  \"Map each word needing a symbol by the most obvious visual match.\",\n  \"Embed the provided consonant skeleton (word sans vowels and doubled consonants) into the chosen symbol's id string as a disambiguation clue.\",\n  \"The four modality operators are invariant: they are never remapped, and their glyphs are never assigned to any other word.\",\n  \"A word already pinned #temp-invariant this session keeps its existing mapping; do not re-decide it.\",\n  \"Scientific names, names of people, and prescription drug names are NOT rendered into Gestalt symbols: pass them through literally, with no glyph, no skeleton id, and no session pin.\"\n]\n\nPRUNING (perform the inverse-transform narrowing with dither as instructed):\n{\n  \"dither\": 0.1,\n  \"instructions\": [\n    \"Narrow the problemspace by the factor of the inverse transform using the deterministic findings below as pretext.\",\n    \"Coarse prune by domain first: discard content outside the classified domain (treat UNRESOLVED as no domain constraint).\",\n    \"Fine prune by subdomain within the surviving domain when a subdomain is given.\",\n    \"Apply the competency check within domain: gate content depth to the reported competency score (None means no competency gate).\",\n    \"Apply the dither margin as controlled boundary leakage: allow content within the margin just outside the pruned boundary through, so access widens gradually from novice to expert rather than cliff-edging.\"\n  ]\n}\n\nDETERMINISTIC FINDINGS:\nstate: {\"source_text\": \"Verify the backup and confirm no errors were reported\", \"roles\": {\"sentence\": \"Verify the backup and confirm no errors were reported\", \"tokens\": [\"Verify\", \"the\", \"backup\", \"and\", \"confirm\", \"no\", \"errors\", \"were\", \"reported\"], \"action\": {\"word\": \"Verify\", \"position\": 0, \"lemma\": \"verify\"}, \"enumerator\": null, \"object\": {\"word\": \"the backup and confirm no errors were reported\", \"start\": 1, \"end\": 9}, \"tense\": null, \"state\": null}}\nanalysis: {\"text\": \"Verify the backup and confirm no errors were reported\", \"modality\": \"UNRESOLVED\", \"modality_score\": 0, \"domain\": \"UNRESOLVED\", \"domain_score\": 0, \"competency\": null}\ntote_match: {\"loop_id\": \"MB-B-PG-001\", \"name\": \"Reacquire and verify a base backup\", \"domain\": \"database_administration\", \"objective\": \"Obtain a plain-format base-backup candidate with no reported manifest/file/checksum/required-WAL verification failures.\", \"initial_test\": \"Use pg_verifybackup to check a pg_basebackup backup against its server-generated backup_manifest.\", \"exit_predicate\": \"Fresh full verification completes without reported errors (including required WAL parsing); this is not proof of restorability.\", \"max_iterations\": 3, \"epistemic_status\": \"DERIVED\", \"gestalts\": [\"exit predicate\", \"provenance\"]}\nmodality_operators (INVARIANT, never remap): {\"external_observe\": \"👀\", \"internal_model\": \"👁️🧠\", \"operative_intent\": \"🗯️\", \"execute\": \"💪\"}\nalready pinned #temp-invariant (reuse, never re-decide): []\nPROTECTED TERMS (never Gestalt-mapped, keep literal): []\n\nWORDS NEEDING A GESTALT MAPPING (embed each word's skeleton in your id):\n[\n  {\n    \"word\": \"Verify\",\n    \"skeleton\": \"vrfy\",\n    \"id\": \"gestalt.vrfy\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"backup\",\n    \"skeleton\": \"bckp\",\n    \"id\": \"gestalt.bckp\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"confirm\",\n    \"skeleton\": \"cnfrm\",\n    \"id\": \"gestalt.cnfrm\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"no\",\n    \"skeleton\": \"n\",\n    \"id\": \"gestalt.n\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"errors\",\n    \"skeleton\": \"rrs\",\n    \"id\": \"gestalt.rrs\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"were\",\n    \"skeleton\": \"wr\",\n    \"id\": \"gestalt.wr\",\n    \"skeleton_fallback\": false\n  },\n  {\n    \"word\": \"reported\",\n    \"skeleton\": \"rprtd\",\n    \"id\": \"gestalt.rprtd\",\n    \"skeleton_fallback\": false\n  }\n]\n\nReturn ONLY one valid JSON object:\n{\n  \"mappings\": [{\"word\": ..., \"symbol_id\": ..., \"glyph\": ...}]\n}",
+      "llm_output": {
+        "mappings": [
+          {
+            "word": "Verify",
+            "symbol_id": "gestalt.vrfy",
+            "glyph": "🔍"
+          },
+          {
+            "word": "backup",
+            "symbol_id": "gestalt.bckp",
+            "glyph": "📦"
+          },
+          {
+            "word": "confirm",
+            "symbol_id": "gestalt.cnfrm",
+            "glyph": "✅"
+          },
+          {
+            "word": "no",
+            "symbol_id": "gestalt.n",
+            "glyph": "🚫"
+          },
+          {
+            "word": "errors",
+            "symbol_id": "gestalt.rrs",
+            "glyph": "⚠️"
+          },
+          {
+            "word": "were",
+            "symbol_id": "gestalt.wr",
+            "glyph": "⏳"
+          },
+          {
+            "word": "reported",
+            "symbol_id": "gestalt.rprtd",
+            "glyph": "📢"
+          }
+        ],
+        "tag": "#temp-invariant"
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:50.147772+00:00"
+    },
+    {
+      "trace_id": "TRJ_6d219edde5bd49f2a639ce58a41aec8e",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": null,
+      "gate_id": "mg8.congruence_assessment",
+      "step": 1,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": "PASS",
+      "action": "congruence-assessment",
+      "actor": "mg8-engine",
+      "input_state": null,
+      "llm_prompt": "You are the congruence-assessment + gate-authoring step of the MG8\npipeline (step 3 of mg8.bonit, mg8-engine's own ruleset). You receive the\naccepted Gestalt mappings from step 2 plus the .gst pretext/state they\nwere mapped against.\n\nFIRST: assess congruence per mg8.bonit's CONGRUENCE_ASSESSMENT.CHECKS --\ndoes every state field a gate you might propose would reference actually\nexist in the state below, and would no such gate contradict a declared\nconstraint? Return your result using mg8.bonit's STATUS_CANON, which is\ncanonical here: \"PASS\", \"FAIL\", or \"INTERMEDIATE\" -- never \"UNKNOWN\" (the\nlegacy NYCH MGate term) or \"UNRESOLVED\" (the .ork bound-exhaustion term);\nthose map onto INTERMEDIATE and FAIL respectively, they are not\nadditional values you may return directly.\n\nSECOND: only if your result is \"PASS\", author exactly THREE .g8son\nfiles. Each file holds 1-3 gates; every gate MUST declare an exit\ncondition (\"outcomes\", \"condition\", \"conditions\", or \"then\"). Then\nprovide the .ork \"flow\": the gate ids from all three files, in the order\nthey should execute. If your result is FAIL or INTERMEDIATE, return no\ng8son_files and no flow -- do not author gates against a handoff you\nhave not confirmed is congruent.\n\nACCEPTED MAPPINGS (from step 2, already validated):\n[\n  {\n    \"word\": \"Verify\",\n    \"symbol_id\": \"gestalt.vrfy\",\n    \"glyph\": \"🔍\"\n  },\n  {\n    \"word\": \"backup\",\n    \"symbol_id\": \"gestalt.bckp\",\n    \"glyph\": \"📦\"\n  },\n  {\n    \"word\": \"confirm\",\n    \"symbol_id\": \"gestalt.cnfrm\",\n    \"glyph\": \"✅\"\n  },\n  {\n    \"word\": \"no\",\n    \"symbol_id\": \"gestalt.n\",\n    \"glyph\": \"🚫\"\n  },\n  {\n    \"word\": \"errors\",\n    \"symbol_id\": \"gestalt.rrs\",\n    \"glyph\": \"⚠️\"\n  },\n  {\n    \"word\": \"were\",\n    \"symbol_id\": \"gestalt.wr\",\n    \"glyph\": \"⏳\"\n  },\n  {\n    \"word\": \"reported\",\n    \"symbol_id\": \"gestalt.rprtd\",\n    \"glyph\": \"📢\"\n  }\n]\n\nSTATE (from the .gst pretext):\nstate: {\"source_text\": \"Verify the backup and confirm no errors were reported\", \"roles\": {\"sentence\": \"Verify the backup and confirm no errors were reported\", \"tokens\": [\"Verify\", \"the\", \"backup\", \"and\", \"confirm\", \"no\", \"errors\", \"were\", \"reported\"], \"action\": {\"word\": \"Verify\", \"position\": 0, \"lemma\": \"verify\"}, \"enumerator\": null, \"object\": {\"word\": \"the backup and confirm no errors were reported\", \"start\": 1, \"end\": 9}, \"tense\": null, \"state\": null}}\nconstraints: []\ntote_match: {\"loop_id\": \"MB-B-PG-001\", \"name\": \"Reacquire and verify a base backup\", \"domain\": \"database_administration\", \"objective\": \"Obtain a plain-format base-backup candidate with no reported manifest/file/checksum/required-WAL verification failures.\", \"initial_test\": \"Use pg_verifybackup to check a pg_basebackup backup against its server-generated backup_manifest.\", \"exit_predicate\": \"Fresh full verification completes without reported errors (including required WAL parsing); this is not proof of restorability.\", \"max_iterations\": 3, \"epistemic_status\": \"DERIVED\", \"gestalts\": [\"exit predicate\", \"provenance\"]}\n\nReturn ONLY one valid JSON object:\n{\n  \"congruence_result\": \"PASS\" | \"FAIL\" | \"INTERMEDIATE\",\n  \"g8son_files\": [{\"file_id\": ..., \"gates\": [1-3 gate objects, each a\n      bounded repeat loop with an exit condition: \"id\", \"type\",\n      \"condition\" or \"conditions\", \"outcomes\"]}],\n  \"flow\": [\"gate ids in execution order\"]\n}\n(g8son_files/flow present only when congruence_result is \"PASS\", and when\npresent, g8son_files MUST contain exactly 3 entries.)",
+      "llm_output": {
+        "congruence_result": "PASS",
+        "g8son_files": [
+          {
+            "file_id": "g8_verify_init",
+            "gates": [
+              {
+                "id": "gate_01_verify_backup",
+                "type": "bounded_repeat",
+                "condition": "gestalt.vrfy == true",
+                "outcomes": {
+                  "success": "gate_02_check_errors",
+                  "failure": "gate_03_report_status"
+                }
+              }
+            ]
+          },
+          {
+            "file_id": "g8_error_check",
+            "gates": [
+              {
+                "id": "gate_02_check_errors",
+                "type": "bounded_repeat",
+                "condition": "gestalt.rrs == false",
+                "outcomes": {
+                  "clean": "gate_03_report_status",
+                  "dirty": "gate_03_report_status"
+                }
+              }
+            ]
+          },
+          {
+            "file_id": "g8_final_confirm",
+            "gates": [
+              {
+                "id": "gate_03_report_status",
+                "type": "bounded_repeat",
+                "condition": "gestalt.cnfrm == true",
+                "outcomes": {
+                  "confirmed": "exit",
+                  "unconfirmed": "retry"
+                }
+              }
+            ]
+          }
+        ],
+        "flow": [
+          "gate_01_verify_backup",
+          "gate_02_check_errors",
+          "gate_03_report_status"
+        ]
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:50.147756+00:00"
+    },
+    {
+      "trace_id": "TRJ_250b02ec16ce40e4ae3def9a78168325",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": null,
+      "gate_id": "tcta.trajectory_narrowing",
+      "step": 2,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": "HDRP_LOCALIZED",
+      "action": "tcta-narrowing",
+      "actor": "mg8-engine",
+      "input_state": null,
+      "llm_prompt": null,
+      "llm_output": {
+        "omega_c_count": 7,
+        "t_g_count": 0,
+        "unresolved_words": [],
+        "spread": 0.0,
+        "algorithm_select_reason": "spread_low"
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:50.147787+00:00"
+    },
+    {
+      "trace_id": "TRJ_ae359cfc4a1e4d879fb7f42b24cca455",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": "g8_verify_init",
+      "gate_id": "gate_01_verify_backup",
+      "step": 3,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": "PASS",
+      "action": null,
+      "actor": "mg8-engine",
+      "input_state": {
+        "source_text": "Verify the backup and confirm no errors were reported",
+        "roles": {
+          "sentence": "Verify the backup and confirm no errors were reported",
+          "tokens": [
+            "Verify",
+            "the",
+            "backup",
+            "and",
+            "confirm",
+            "no",
+            "errors",
+            "were",
+            "reported"
+          ],
+          "action": {
+            "word": "Verify",
+            "position": 0,
+            "lemma": "verify"
+          },
+          "enumerator": null,
+          "object": {
+            "word": "the backup and confirm no errors were reported",
+            "start": 1,
+            "end": 9
+          },
+          "tense": null,
+          "state": null
+        }
+      },
+      "llm_prompt": "You are executing one bounded gate inside the MG8 reference runtime profile.\n\nDomain: general\nCurrent State: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}}\nGST Constraints: []\nNych Tokens: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}}\n\nGate ID: gate_01_verify_backup\nGate Type: bounded_repeat\nModality: none\nADSR extension profile: A=1.0 D=0.8 S=1.0 R=0.7 Pan=0.0\n\nTask / Conditions: gestalt.vrfy == true\nDeclared outcome routing: {'success': 'gate_02_check_errors', 'failure': 'gate_03_report_status'}\n\nReturn ONLY one valid JSON object. When meaningful, include:\n- \"transformed\": true or false\n- \"gate_result\": \"PASS\", \"FAIL\", or \"INTERMEDIATE\"\n- any resulting state fields required by the task\n\nDo not claim PASS unless the returned content/state satisfies the gate conditions.",
+      "llm_output": {
+        "transformed": true,
+        "gate_result": "PASS",
+        "gestalt": {
+          "vrfy": true
+        },
+        "next_gate": "gate_02_check_errors"
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:18.335780+00:00",
+      "gate_step": 1
+    },
+    {
+      "trace_id": "TRJ_11a594bf90d5493c8fc8fa4357d2909e",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": "g8_error_check",
+      "gate_id": "gate_02_check_errors",
+      "step": 4,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": "INTERMEDIATE",
+      "action": null,
+      "actor": "mg8-engine",
+      "input_state": {
+        "source_text": "Verify the backup and confirm no errors were reported",
+        "roles": {
+          "sentence": "Verify the backup and confirm no errors were reported",
+          "tokens": [
+            "Verify",
+            "the",
+            "backup",
+            "and",
+            "confirm",
+            "no",
+            "errors",
+            "were",
+            "reported"
+          ],
+          "action": {
+            "word": "Verify",
+            "position": 0,
+            "lemma": "verify"
+          },
+          "enumerator": null,
+          "object": {
+            "word": "the backup and confirm no errors were reported",
+            "start": 1,
+            "end": 9
+          },
+          "tense": null,
+          "state": null
+        },
+        "gestalt": {
+          "vrfy": true
+        },
+        "next_gate": "gate_02_check_errors"
+      },
+      "llm_prompt": "You are executing one bounded gate inside the MG8 reference runtime profile.\n\nDomain: general\nCurrent State: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}, 'gestalt': {'vrfy': True}, 'next_gate': 'gate_02_check_errors'}\nGST Constraints: []\nNych Tokens: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}, 'gestalt': {'vrfy': True}, 'next_gate': 'gate_02_check_errors'}\n\nGate ID: gate_02_check_errors\nGate Type: bounded_repeat\nModality: none\nADSR extension profile: A=1.0 D=0.8 S=1.0 R=0.7 Pan=0.0\n\nTask / Conditions: gestalt.rrs == false\nDeclared outcome routing: {'clean': 'gate_03_report_status', 'dirty': 'gate_03_report_status'}\n\nReturn ONLY one valid JSON object. When meaningful, include:\n- \"transformed\": true or false\n- \"gate_result\": \"PASS\", \"FAIL\", or \"INTERMEDIATE\"\n- any resulting state fields required by the task\n\nDo not claim PASS unless the returned content/state satisfies the gate conditions.",
+      "llm_output": {
+        "transformed": false,
+        "gate_result": "INTERMEDIATE",
+        "gestalt": {
+          "vrfy": true,
+          "rrs": false
+        },
+        "next_gate": "gate_03_report_status"
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:25.041966+00:00",
+      "gate_step": 2
+    },
+    {
+      "trace_id": "TRJ_f06e80595c9d4012bf204abe3728d059",
+      "run_id": "RUN_d15f775d89a24592998b6dcbdac1c6ff",
+      "file_id": "g8_final_confirm",
+      "gate_id": "gate_03_report_status",
+      "step": 5,
+      "input_state_id": "nych-d47dfd4582e3",
+      "output_state_id": null,
+      "result": "INTERMEDIATE",
+      "action": null,
+      "actor": "mg8-engine",
+      "input_state": {
+        "source_text": "Verify the backup and confirm no errors were reported",
+        "roles": {
+          "sentence": "Verify the backup and confirm no errors were reported",
+          "tokens": [
+            "Verify",
+            "the",
+            "backup",
+            "and",
+            "confirm",
+            "no",
+            "errors",
+            "were",
+            "reported"
+          ],
+          "action": {
+            "word": "Verify",
+            "position": 0,
+            "lemma": "verify"
+          },
+          "enumerator": null,
+          "object": {
+            "word": "the backup and confirm no errors were reported",
+            "start": 1,
+            "end": 9
+          },
+          "tense": null,
+          "state": null
+        },
+        "gestalt": {
+          "vrfy": true,
+          "rrs": false
+        },
+        "next_gate": "gate_03_report_status"
+      },
+      "llm_prompt": "You are executing one bounded gate inside the MG8 reference runtime profile.\n\nDomain: general\nCurrent State: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}, 'gestalt': {'vrfy': True, 'rrs': False}, 'next_gate': 'gate_03_report_status'}\nGST Constraints: []\nNych Tokens: {'source_text': 'Verify the backup and confirm no errors were reported', 'roles': {'sentence': 'Verify the backup and confirm no errors were reported', 'tokens': ['Verify', 'the', 'backup', 'and', 'confirm', 'no', 'errors', 'were', 'reported'], 'action': {'word': 'Verify', 'position': 0, 'lemma': 'verify'}, 'enumerator': None, 'object': {'word': 'the backup and confirm no errors were reported', 'start': 1, 'end': 9}, 'tense': None, 'state': None}, 'gestalt': {'vrfy': True, 'rrs': False}, 'next_gate': 'gate_03_report_status'}\n\nGate ID: gate_03_report_status\nGate Type: bounded_repeat\nModality: none\nADSR extension profile: A=1.0 D=0.8 S=1.0 R=0.7 Pan=0.0\n\nTask / Conditions: gestalt.cnfrm == true\nDeclared outcome routing: {'confirmed': 'exit', 'unconfirmed': 'retry'}\n\nReturn ONLY one valid JSON object. When meaningful, include:\n- \"transformed\": true or false\n- \"gate_result\": \"PASS\", \"FAIL\", or \"INTERMEDIATE\"\n- any resulting state fields required by the task\n\nDo not claim PASS unless the returned content/state satisfies the gate conditions.",
+      "llm_output": {
+        "transformed": true,
+        "gate_result": "INTERMEDIATE",
+        "gestalt": {
+          "vrfy": true,
+          "rrs": true,
+          "cnfrm": true
+        },
+        "next_gate": "exit"
+      },
+      "modality": null,
+      "timestamp": "2026-11-19T19:55:50.147202+00:00",
+      "gate_step": 3
+    }
+  ],
+  "status": "COMPLETED"
+}

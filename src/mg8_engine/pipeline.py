@@ -78,7 +78,9 @@ from uuid import uuid4
 
 from .core import run_mg8
 from .gitson import make_block, split_canon_bundle, write_parts
-from .models import Mg8Unit, QsonEntry
+from pydantic import ValidationError
+
+from .models import G8Gate, Mg8Unit, QsonEntry
 from .tcta_bridge import build_tcta_file, compute_mapping_narrowing, verify_compliance
 from tcta_engine.file_format import serialize_tcta
 
@@ -366,6 +368,17 @@ def validate_congruence_response(response: Dict[str, Any],
                     "is a bounded repeat loop with exit conditions "
                     "(REJECT IF GATE_MISSING_EXIT_CONDITION)"
                 )
+            try:
+                G8Gate.model_validate(g)
+            except ValidationError as exc:
+                # Without this, a malformed gate (e.g. "outcomes" as a string) passes canon
+                # validation and only crashes later, during unit assembly.
+                first = exc.errors()[0]
+                raise PipelineError(
+                    f"gate {gid!r} does not match the G8Gate schema: "
+                    f"{'.'.join(str(x) for x in first['loc'])}: {first['msg']} "
+                    "(REJECT IF GATE_NOT_G8SON_SCHEMA_VALID)"
+                ) from None
             gate_ids.append(gid)
 
     if not flow:

@@ -1,0 +1,15 @@
+{
+  "g8son_version": "1.0",
+  "file_id": "g8_release_tagging",
+  "gates": [
+    {
+      "id": "gate_03_execute_tagging",
+      "type": "bounded_repeat",
+      "then": "release_tag_created",
+      "outcomes": {
+        "complete": "terminate_pipeline",
+        "error": "rollback_tag"
+      }
+    }
+  ]
+}
